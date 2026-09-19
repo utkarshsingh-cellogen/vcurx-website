@@ -1,0 +1,13 @@
+.text {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: clamp(1.9rem, 3.6vw, 3.4rem);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  color: var(--text-dim, rgba(247, 243, 236, 0.5));
+  text-wrap: balance;
+}
+
+.hl {
+  color: var(--text-bright, #fff);
+}

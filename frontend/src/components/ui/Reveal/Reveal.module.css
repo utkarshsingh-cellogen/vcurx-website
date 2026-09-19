@@ -1,0 +1,24 @@
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  filter: blur(6px);
+  transition:
+    opacity 1s var(--ease-out) var(--delay),
+    transform 1.2s var(--ease-out) var(--delay),
+    filter 1s var(--ease-out) var(--delay);
+}
+
+.shown {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+/* Without JS nothing would ever reveal, so show content outright */
+@media (scripting: none) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}

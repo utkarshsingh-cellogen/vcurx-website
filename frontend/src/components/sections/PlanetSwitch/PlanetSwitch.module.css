@@ -1,0 +1,91 @@
+.section {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 1fr auto;
+  justify-items: center;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: clamp(96px, 16vh, 180px) var(--gutter) clamp(48px, 8vh, 88px);
+  overflow: hidden;
+  text-align: center;
+  color: #fff;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+/* Mars: the surface photo, heavily blurred into a warm dusty haze */
+.mars {
+  --text-dim: rgba(255, 232, 214, 0.5);
+  background: #1b0d06;
+}
+
+.mars .backdrop {
+  background:
+    linear-gradient(180deg, rgba(10, 4, 2, 0.8) 0%, rgba(40, 18, 8, 0.25) 35%, rgba(12, 5, 2, 0.9) 100%),
+    url("/images/mars-surface-blur.webp") center / cover no-repeat;
+  transform: scale(1.1);
+}
+
+/* Earth: deep space with a soft blue planet-glow drifting in from the right */
+.earth {
+  --text-dim: rgba(225, 235, 255, 0.45);
+  background: #000;
+}
+
+.earth .backdrop {
+  background:
+    radial-gradient(55% 60% at 88% 40%, rgba(60, 110, 200, 0.28), transparent 70%),
+    radial-gradient(30% 35% at 80% 45%, rgba(140, 180, 255, 0.12), transparent 70%);
+}
+
+.center {
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 760px;
+}
+
+.title {
+  font-size: clamp(1.8rem, 3.2vw, 3rem);
+}
+
+.body {
+  max-width: 440px;
+  margin-top: clamp(40px, 8vh, 96px);
+  text-wrap: balance;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 22px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  background: #fff;
+  color: #111;
+  font-size: 14px;
+  font-weight: 500;
+  transition:
+    transform 0.5s var(--ease-out),
+    box-shadow 0.5s var(--ease-out);
+}
+
+.cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px -12px rgba(255, 255, 255, 0.45);
+}
+
+.switcher {
+  margin-top: 48px;
+}

@@ -1,0 +1,1 @@
+export { WaveMarquee } from "./WaveMarquee";

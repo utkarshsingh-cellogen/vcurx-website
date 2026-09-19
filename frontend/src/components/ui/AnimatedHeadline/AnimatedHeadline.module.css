@@ -1,0 +1,135 @@
+.headline {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(3.4rem, 11vw, 10rem);
+  line-height: 0.98;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  text-align: center;
+  /* Warm bloom, as if the letters catch light reflected off the planet below */
+  filter: drop-shadow(0 0 28px rgba(255, 200, 160, 0.16)) drop-shadow(0 0 6px rgba(255, 240, 225, 0.12));
+}
+
+.line {
+  display: block;
+}
+
+.word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* Per-character reveal */
+.char {
+  position: relative;
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.45em) rotate(4deg);
+  filter: blur(10px);
+  animation: charIn 1.3s var(--ease-out) forwards;
+  animation-delay: calc(0.3s + var(--i) * 0.035s);
+}
+
+@keyframes charIn {
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+
+/*
+ * Lit letters: bright starlight on top fading to the warm glow of Mars at the base,
+ * with a slow metallic sheen sweeping across (fixed attachment keeps one continuous sweep).
+ */
+.lit .char {
+  background-image:
+    linear-gradient(
+      105deg,
+      transparent 42%,
+      rgba(255, 255, 255, 0.85) 50%,
+      transparent 58%
+    ),
+    linear-gradient(180deg, #ffffff 0%, #f7f1e8 42%, #eec3a1 100%);
+  background-size:
+    300% 100%,
+    100% 100%;
+  background-repeat: no-repeat;
+  background-attachment: fixed, scroll;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation:
+    charIn 1.3s var(--ease-out) forwards calc(0.3s + var(--i) * 0.035s),
+    sheen 9s var(--ease-in-out) 2.4s infinite;
+}
+
+@keyframes sheen {
+  0% {
+    background-position:
+      150% 0,
+      0 0;
+  }
+  45%,
+  100% {
+    background-position:
+      -50% 0,
+      0 0;
+  }
+}
+
+.bold {
+  font-weight: 700;
+}
+
+/* ✦ nested in a letter's counter, like the "o" of the Cotta typeface */
+.sparkle {
+  position: absolute;
+  left: 66%;
+  top: 66%;
+  margin: -0.5em 0 0 -0.5em; /* centre the 1em sparkle on the point */
+  font-size: 0.2em;
+  color: #fff;
+  --sparkle-delay: 1.2s;
+}
+
+/* Moving light shimmer across the accent word */
+.accent {
+  font-style: italic;
+}
+
+.accent .char {
+  background-image: linear-gradient(
+    100deg,
+    var(--accent) 0%,
+    var(--accent-light) 30%,
+    var(--accent-glow) 45%,
+    var(--accent-light) 60%,
+    var(--accent) 100%
+  );
+  background-size: 400% 100%;
+  background-attachment: fixed; /* one continuous sweep across all letters */
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  padding-right: 0.04em; /* keep the italic overhang from clipping */
+  animation:
+    charIn 1.3s var(--ease-out) forwards calc(0.3s + var(--i) * 0.035s),
+    shimmer 6s linear infinite;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -300% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .accent .char {
+    background: none;
+    color: var(--accent);
+  }
+}

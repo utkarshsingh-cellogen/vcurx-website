@@ -1,0 +1,33 @@
+.wrap {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  min-width: 900px;
+  height: auto;
+  aspect-ratio: 1440 / 140;
+  margin-left: 50%;
+  transform: translateX(-50%);
+  overflow: visible;
+}
+
+.ribbon {
+  fill: none;
+  stroke: #f4ebdd;
+  stroke-width: 30;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.35));
+}
+
+.text {
+  fill: #2a1a10;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: pre;
+}

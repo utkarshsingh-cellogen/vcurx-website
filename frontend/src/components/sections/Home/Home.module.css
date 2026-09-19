@@ -1,0 +1,18 @@
+.section {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  min-height: 100svh;
+  overflow: hidden;
+  background: #000;
+}
+
+/* The canvas includes room for the atmosphere glow around the globe */
+.globe {
+  position: relative;
+  z-index: 1;
+  width: min(100vw, 100vh);
+  width: min(100vw, 100svh);
+}

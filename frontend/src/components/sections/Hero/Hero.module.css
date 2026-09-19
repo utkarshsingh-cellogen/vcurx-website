@@ -1,0 +1,137 @@
+/* Tall scroll track: the extra height is the distance we "fly" toward the planet */
+.hero {
+  --progress: 0;
+  position: relative;
+  height: 260vh;
+  height: 260svh;
+}
+
+/* Pinned viewport-sized stage */
+.stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  /* Text sits in the upper sky; the planet rises beneath it */
+  padding: clamp(40px, 8vh, 110px) var(--gutter) 80px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.scrollAway {
+  opacity: calc(1 - var(--progress) * 2.4);
+  transform: translateY(calc(var(--progress) * -18vh)) scale(calc(1 - var(--progress) * 0.12));
+  filter: blur(calc(var(--progress) * 10px));
+  will-change: transform, opacity, filter;
+}
+
+/* Thin animated line inviting a scroll */
+.scrollCue {
+  position: absolute;
+  left: 50%;
+  bottom: 28px;
+  width: 1px;
+  height: 48px;
+  overflow: hidden;
+  background: rgba(247, 243, 236, 0.15);
+  opacity: calc(1 - var(--progress) * 6);
+  animation: cueIn 1s var(--ease-out) 2.6s both;
+}
+
+.scrollCue::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  transform: translateY(-100%);
+  animation: cueLine 2.2s var(--ease-in-out) 2.6s infinite;
+}
+
+@keyframes cueIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes cueLine {
+  0% {
+    transform: translateY(-100%);
+  }
+  60%,
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Scoped under .content so it reliably overrides the headline's default size */
+.content .headline {
+  /* Also capped by height so short, wide windows keep the text clear of the planet */
+  /* Big wordmark spanning ~¾ of the width, capped by height so it clears the planet */
+  font-size: min(27vw, 40vh);
+  line-height: 0.92;
+  letter-spacing: -0.01em;
+}
+
+/* "—— we cure us ——" */
+.tagline {
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 2.2vw, 30px);
+  margin-top: clamp(16px, 2.4vw, 30px);
+  font-size: clamp(12px, 1.3vw, 18px);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.6em;
+  /* balance the trailing letter-spacing so the text stays optically centered */
+  padding-left: 0.6em;
+  color: rgba(247, 241, 232, 0.72);
+  opacity: 0;
+  animation: taglineIn 1.4s var(--ease-out) 1s forwards;
+}
+
+/* Hairlines that fade out toward their far ends */
+.rule {
+  display: block;
+  width: clamp(36px, 6vw, 96px);
+  height: 1px;
+  transform: scaleX(0);
+  animation: ruleIn 1.2s var(--ease-out) 1.3s forwards;
+}
+
+.rule:first-child {
+  background: linear-gradient(90deg, transparent, rgba(247, 241, 232, 0.5));
+  transform-origin: right;
+}
+
+.rule:last-child {
+  background: linear-gradient(90deg, rgba(247, 241, 232, 0.5), transparent);
+  transform-origin: left;
+}
+
+@keyframes taglineIn {
+  from {
+    opacity: 0;
+    letter-spacing: 1em;
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    letter-spacing: 0.6em;
+    filter: blur(0);
+  }
+}
+
+@keyframes ruleIn {
+  to {
+    transform: scaleX(1);
+  }
+}
