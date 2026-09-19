@@ -7,12 +7,12 @@ export type HeadlineSegment = {
 };
 
 export const siteConfig = {
-  name: "Vcurx",
-  description: "Vcurx — we cure us.",
+  name: "VcurX",
+  description: "VcurX — we cure us.",
   themeColor: "#000000",
   hero: {
     /** Each inner array is one line of the headline. */
-    headline: [[{ text: "V", bold: true }, { text: "curx" }]] satisfies HeadlineSegment[][],
+    headline: [[{ text: "V", bold: true }, { text: "curX" }]] satisfies HeadlineSegment[][],
     /** Index of the headline letter that holds the ✦ sparkle (1 = the "c"). */
     sparkleIndex: 1,
     tagline: "we cure us",

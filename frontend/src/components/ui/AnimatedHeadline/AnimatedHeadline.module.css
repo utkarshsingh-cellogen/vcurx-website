@@ -80,6 +80,8 @@
 
 .bold {
   font-weight: 700;
+  /* Tuck the heavy V into the next letter so the wordmark reads as one word */
+  margin-right: -0.07em;
 }
 
 /* ✦ nested in a letter's counter, like the "o" of the Cotta typeface */

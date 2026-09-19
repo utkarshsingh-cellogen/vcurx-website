@@ -26,7 +26,7 @@ export const home = {
 export const toNext = {
   id: "switch-next",
   title: ["Let's look ", { hl: "further" }, " and see what comes next!"] as RichText,
-  body: "The next chapter of Vcurx is being written in our labs right now.",
+  body: "The next chapter of VcurX is being written in our labs right now.",
   cta: { label: "Back to the start", href: "#top" },
   active: "earth" as PlanetId,
 };
