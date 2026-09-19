@@ -19,17 +19,16 @@
   z-index: -1;
 }
 
-/* Mars: the surface photo, heavily blurred into a warm dusty haze */
+/* Mars: the same starry black as Earth, with a warm planet-glow drifting in from the left */
 .mars {
-  --text-dim: rgba(255, 232, 214, 0.5);
-  background: #1b0d06;
+  --text-dim: rgba(255, 232, 214, 0.45);
+  background: #000;
 }
 
 .mars .backdrop {
   background:
-    linear-gradient(180deg, rgba(10, 4, 2, 0.8) 0%, rgba(40, 18, 8, 0.25) 35%, rgba(12, 5, 2, 0.9) 100%),
-    url("/images/mars-surface-blur.webp") center / cover no-repeat;
-  transform: scale(1.1);
+    radial-gradient(55% 60% at 12% 40%, rgba(200, 95, 45, 0.26), transparent 70%),
+    radial-gradient(30% 35% at 20% 45%, rgba(255, 170, 120, 0.1), transparent 70%);
 }
 
 /* Earth: deep space with a soft blue planet-glow drifting in from the right */

@@ -57,10 +57,6 @@ All copy below the hero lives in `src/config/content.ts`.
 - `earth-color.webp`, `earth-clouds.webp` — NASA Visible Earth Blue Marble, 2048×1024
   ([NASA Visible Earth](https://visibleearth.nasa.gov/collection/1484/blue-marble))
 
-`public/images/`:
-
-- `mars-surface-blur.webp` (backdrop of the Mars interlude) — Jezero crater, NASA/JPL-Caltech Perseverance rover, sol 38
-  ([Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Jezero_crater_on_Mars,_sol_38_of_Perseverance_mission.png))
 
 All are public domain. Until textures load, each planet renders a simple fallback and crossfades
 once they arrive.

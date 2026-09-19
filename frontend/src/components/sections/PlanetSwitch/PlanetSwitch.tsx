@@ -14,7 +14,7 @@ type PlanetSwitchProps = {
     cta: { label: string; href: string };
     active: PlanetId;
   };
-  /** Backdrop mood: dusty Mars haze or deep blue Earth space. */
+  /** Accent glow: warm for Mars, blue for Earth — both over the same starry black. */
   tone: "mars" | "earth";
 };
 
@@ -23,7 +23,7 @@ export function PlanetSwitch({ content, tone }: PlanetSwitchProps) {
   const { id, title, body, cta, active } = content;
   return (
     <section id={id} className={`${styles.section} ${styles[tone]}`}>
-      {tone === "earth" && <Starfield />}
+      <Starfield />
       <div className={styles.backdrop} aria-hidden="true" />
 
       <div className={styles.center}>
