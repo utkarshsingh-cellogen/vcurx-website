@@ -1,0 +1,320 @@
+.root {
+  display: grid;
+  gap: clamp(28px, 5vh, 52px);
+}
+
+/* ==========================================================
+   Filters
+   ========================================================== */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: none;
+  font-size: 13px;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition:
+    color 200ms var(--ease-out),
+    border-color 200ms var(--ease-out),
+    background-color 200ms var(--ease-out);
+}
+
+.chip:hover {
+  color: var(--ink);
+  border-color: var(--line-strong);
+}
+
+.chip[data-active="true"] {
+  color: var(--ink);
+  border-color: var(--domain, var(--line-strong));
+  background: color-mix(in srgb, var(--domain, #fff) 12%, transparent);
+}
+
+.chipCount {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--domain, var(--ink-soft));
+}
+
+/* ==========================================================
+   Chart
+   ========================================================== */
+.chart {
+  position: relative;
+  display: grid;
+  justify-items: center;
+}
+
+.rootNode {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 16px 26px;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: rgba(7, 8, 11, 0.7);
+  text-align: center;
+}
+
+.rootName {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 2.4vw, 30px);
+  letter-spacing: -0.015em;
+}
+
+.rootRole {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* The drop from the root, then the bus the four columns hang from. */
+.trunk {
+  width: 1px;
+  height: 30px;
+  background: var(--line-strong);
+}
+
+.bus {
+  width: 75%;
+  height: 1px;
+  background: var(--line);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(12px, 2vw, 28px);
+  width: 100%;
+  list-style: none;
+}
+
+.column {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 10px;
+  padding-top: 30px;
+  transition: opacity 260ms var(--ease-out);
+}
+
+/* Each column's own drop from the bus. */
+.column::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 1px;
+  height: 30px;
+  background: var(--line);
+}
+
+.column[data-dimmed="true"] {
+  opacity: 0.2;
+}
+
+/* Hovering one branch quietens the others — only when nothing is filtered. */
+.chart[data-filtered="false"] .columns:hover .column:not(:hover) {
+  opacity: 0.35;
+}
+
+.domainNode {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  text-align: center;
+  transition:
+    border-color 200ms var(--ease-out),
+    background-color 200ms var(--ease-out);
+}
+
+.domainNode:hover,
+.domainNode:focus-visible {
+  border-color: var(--domain);
+  background: color-mix(in srgb, var(--domain) 12%, transparent);
+}
+
+.domainName {
+  font-size: 14px;
+  letter-spacing: -0.005em;
+}
+
+.domainCount {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--domain);
+}
+
+.domainArrow {
+  color: var(--ink-soft);
+  opacity: 0;
+  transition: opacity 200ms var(--ease-out);
+}
+
+.domainNode:hover .domainArrow,
+.domainNode:focus-visible .domainArrow {
+  opacity: 1;
+}
+
+/* A short connector between one level and the next. */
+.stem {
+  width: 1px;
+  height: 16px;
+  background: var(--line);
+}
+
+.subLayer {
+  padding: 4px 11px;
+  border: 1px dashed color-mix(in srgb, var(--domain) 55%, transparent);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--domain);
+}
+
+.group {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.groupName {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* ==========================================================
+   Leaves
+   ========================================================== */
+.leaves {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  padding-left: 14px;
+  list-style: none;
+}
+
+/* Bracket: a spine down the left with a tick out to each product. */
+.leafRow {
+  position: relative;
+  padding-left: 16px;
+}
+
+.leafRow::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--line);
+}
+
+.leafRow:last-child::before {
+  bottom: auto;
+  height: 17px;
+}
+
+.leafRow::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 17px;
+  width: 11px;
+  height: 1px;
+  background: var(--line);
+}
+
+.leaf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 10px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  transition:
+    border-color 180ms var(--ease-out),
+    background-color 180ms var(--ease-out);
+}
+
+.leaf:hover,
+.leaf:focus-visible {
+  border-color: color-mix(in srgb, var(--domain) 45%, transparent);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.leafName {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0;
+  color: var(--ink-soft);
+  transition: color 180ms var(--ease-out);
+}
+
+.leaf:hover .leafName,
+.leaf:focus-visible .leafName {
+  color: var(--ink);
+}
+
+.leafStatus {
+  flex: none;
+  opacity: 0;
+  transition: opacity 180ms var(--ease-out);
+}
+
+.leaf:hover .leafStatus,
+.leaf:focus-visible .leafStatus {
+  opacity: 1;
+}
+
+/* ==========================================================
+   Small screens: the branches stack
+   ========================================================== */
+@media (max-width: 860px) {
+  .bus {
+    display: none;
+  }
+
+  .columns {
+    grid-template-columns: 1fr;
+    gap: 34px;
+  }
+
+  .column {
+    justify-items: start;
+  }
+
+  .column::before {
+    left: 0;
+  }
+
+  .leafStatus {
+    opacity: 1;
+  }
+}

@@ -1,4 +1,4 @@
-import { Inter, Playfair_Display } from "next/font/google";
+import { Inter, JetBrains_Mono, Playfair_Display } from "next/font/google";
 
 /**
  * Display face — closest free match to "Cotta" (high contrast, ball terminals).
@@ -13,5 +13,12 @@ export const displayFont = Playfair_Display({
 export const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+  display: "swap",
+});
+
+/** Product names and small technical labels across the Domain Intelligence map. */
+export const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains-mono",
   display: "swap",
 });

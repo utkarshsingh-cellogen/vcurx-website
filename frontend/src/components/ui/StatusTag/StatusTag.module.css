@@ -1,0 +1,35 @@
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.live {
+  color: #7fb98f;
+  border-color: rgba(127, 185, 143, 0.35);
+}
+
+.beta {
+  color: var(--accent);
+  border-color: rgba(238, 167, 122, 0.35);
+}
+
+.inLab {
+  color: var(--ink-soft);
+}
