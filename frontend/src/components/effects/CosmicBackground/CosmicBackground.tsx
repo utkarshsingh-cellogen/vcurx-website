@@ -7,8 +7,7 @@ import { createCosmosRenderer } from "./renderer";
 import styles from "./CosmicBackground.module.css";
 
 /**
- * Full-bleed space scene drawn with WebGL: a real-data Mars rising from the bottom,
- * drifting and sparkling stars. Inside a ScrollStage, the planet approaches as you scroll.
+ * Earth rises from the bottom of a starfield, then turns and zooms toward Delhi, India on scroll.
  * Falls back to a static CSS scene without WebGL.
  */
 export function CosmicBackground() {
@@ -20,7 +19,8 @@ export function CosmicBackground() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const root = rootRef.current;
+    if (!canvas || !root) return;
     const destroy = createCosmosRenderer(canvas, {
       still: reducedMotion,
       getScrollProgress: () => progressRef?.current ?? 0,
@@ -28,8 +28,10 @@ export function CosmicBackground() {
     });
     // Only reveal the static CSS planet when WebGL is unavailable; otherwise the page
     // opens on plain black space and the real planet rises into view.
-    if (!destroy) rootRef.current?.setAttribute("data-fallback", "");
-    return () => destroy?.();
+    root.toggleAttribute("data-fallback", !destroy);
+    return () => {
+      destroy?.();
+    };
   }, [reducedMotion, progressRef]);
 
   return (

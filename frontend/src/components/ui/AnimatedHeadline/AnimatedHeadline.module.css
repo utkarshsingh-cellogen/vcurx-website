@@ -12,6 +12,8 @@
 
 .line {
   display: block;
+  animation: lineIn 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(0.3s + var(--line, 0) * 0.22s);
 }
 
 .word {
@@ -19,22 +21,20 @@
   white-space: nowrap;
 }
 
-/* Per-character reveal */
+/* Letters retain their styling; the entire line enters as one unit. */
 .char {
   position: relative;
   display: inline-block;
-  opacity: 0;
-  transform: translateY(0.45em) rotate(4deg);
-  filter: blur(10px);
-  animation: charIn 1.3s var(--ease-out) forwards;
-  animation-delay: calc(0.3s + var(--i) * 0.035s);
 }
 
-@keyframes charIn {
+@keyframes lineIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.3em);
+  }
   to {
     opacity: 1;
     transform: none;
-    filter: blur(0);
   }
 }
 
@@ -59,9 +59,7 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation:
-    charIn 1.3s var(--ease-out) forwards calc(0.3s + var(--i) * 0.035s),
-    sheen 9s var(--ease-in-out) 2.4s infinite;
+  animation: sheen 9s var(--ease-in-out) 2.4s infinite;
 }
 
 @keyframes sheen {
@@ -115,9 +113,7 @@
   background-clip: text;
   color: transparent;
   padding-right: 0.04em; /* keep the italic overhang from clipping */
-  animation:
-    charIn 1.3s var(--ease-out) forwards calc(0.3s + var(--i) * 0.035s),
-    shimmer 6s linear infinite;
+  animation: shimmer 6s linear infinite;
 }
 
 @keyframes shimmer {
@@ -130,6 +126,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .line { animation: none; }
   .accent .char {
     background: none;
     color: var(--accent);

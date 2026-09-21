@@ -17,6 +17,9 @@
   position: absolute;
   inset: 0;
   z-index: -1;
+  /* Let the blue glow emerge from black, rather than start at a visible edge. */
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 20%, #000 80%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 20%, #000 80%, transparent);
 }
 
 /* Mars: the same starry black as Earth, with a warm planet-glow drifting in from the left */
@@ -37,6 +40,11 @@
   background: #000;
 }
 
+/* The first interlude appears over the camera's dive, inside the pinned hero. */
+.embedded {
+  background: transparent;
+}
+
 .earth .backdrop {
   background:
     radial-gradient(55% 60% at 88% 40%, rgba(60, 110, 200, 0.28), transparent 70%),
@@ -55,13 +63,15 @@
   font-size: clamp(1.8rem, 3.2vw, 3rem);
 }
 
-.body {
+.center .body {
   max-width: 440px;
   margin-top: clamp(40px, 8vh, 96px);
   text-wrap: balance;
   font-size: 14px;
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.75);
+  --text-bright: rgba(255, 255, 255, 0.75);
+  letter-spacing: normal;
 }
 
 .cta {
