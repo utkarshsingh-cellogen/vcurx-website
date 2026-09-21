@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { siteConfig } from "@/config/site";
-import { displayFont, inter } from "@/lib/fonts";
+import { displayFont, inter, mono } from "@/lib/fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -17,7 +17,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${displayFont.variable} ${inter.variable}`}>
+    <html lang="en" className={`${displayFont.variable} ${inter.variable} ${mono.variable}`}>
       <body>{children}</body>
     </html>
   );

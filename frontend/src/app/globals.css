@@ -13,6 +13,17 @@
 
   --font-display: var(--font-display-face), "Times New Roman", serif;
   --font-body: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* One muted accent per domain; everything else stays white/grey. */
+  --domain-therapeutics: #5c9e96;
+  --domain-research: #8a7cc0;
+  --domain-clinical: #c2a163;
+  --domain-diagnostic: #cb8272;
+
+
+  --line: rgba(247, 243, 236, 0.16);
+  --line-strong: rgba(247, 243, 236, 0.42);
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);

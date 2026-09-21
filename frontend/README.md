@@ -19,15 +19,19 @@ src/
 ├── app/                      # Routes (App Router)
 │   ├── layout.tsx            # Root layout: fonts, metadata, viewport
 │   ├── page.tsx              # Home page
+│   ├── domains/[slug]/       # One page per domain (static)
+│   ├── products/[slug]/      # One page per product (static)
 │   ├── globals.css           # Design tokens + base styles
 │   └── icon.svg              # Favicon
 ├── components/
-│   ├── sections/             # Hero, PlanetSwitch, Home (Earth globe)
+│   ├── sections/             # Hero, Domains (orbit map), PlanetSwitch
 │   ├── effects/              # CosmicBackground + Globe (WebGL), Parallax, ScrollStage, Starfield
 │   └── ui/                   # Primitives: AnimatedHeadline, GlassCard, WaveMarquee, PlanetSwitcher, …
+├── data/
+│   └── products.ts           # Domains + products — the single source of truth
 ├── config/
 │   ├── site.ts               # Site name, metadata, hero headline copy
-│   └── content.ts            # Copy and stats for every section below the hero
+│   └── content.ts            # Copy for every section below the hero, and the journey stops
 ├── hooks/                    # Shared React hooks
 └── lib/
     ├── fonts.ts              # next/font definitions
@@ -45,6 +49,36 @@ counter holds the twinkling ✦.
 ## Editing the sections
 
 All copy below the hero lives in `src/config/content.ts`.
+
+
+## Domain Intelligence
+
+`src/data/products.ts` is the single source of truth for the orbit on the home page
+(`#domains`), the mobile list, `/domains/[slug]` and `/products/[slug]`. All of those routes
+are statically generated from it via `generateStaticParams`.
+
+### Adding a product
+
+Append one object to the `products` array — nothing else needs to change:
+
+```ts
+{
+  name: "New Product",
+  slug: "new-product",        // becomes /products/new-product
+  domain: "research",         // therapeutics | research | clinical | diagnostic
+  group: "Design",            // must match one of that domain's `groups`
+  oneLiner: "What it does, in one line.",
+  status: "in-lab",           // live | beta | in-lab
+  problem: "...",             // optional — falls back to a TODO placeholder
+  steps: ["...", "...", "..."], // optional — exactly three
+}
+```
+
+A new domain means one entry in `domains` (with a `--domain-*` colour token in
+`globals.css`) plus a fifth angle in `BASE_ANGLES` in `OrbitMap.tsx`.
+
+Each domain's accent is a token in `src/app/globals.css`: `--domain-therapeutics`,
+`--domain-research`, `--domain-clinical`, `--domain-diagnostic`.
 
 ## Images and textures
 
@@ -71,7 +105,12 @@ textures, fades in on approach, and uses the 2048 version on GPUs limited to sma
 textures. The small base texture remains available if the detail request fails.
 
 
-All are public domain. Until textures load, each planet renders a simple fallback and crossfades
+`milkyway.webp` / `milkyway-1100.webp` back the Domain Intelligence section: the ESO/S. Brunier
+all-sky panorama ([eso0932a](https://www.eso.org/public/images/eso0932a/)), licensed
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Cropped from the 6000×3000 original at
+x=2600, y=700, 3000×1800, then resized to 2000×1200 and 1100×660 and encoded as WebP.
+
+The planet textures are public domain. Until textures load, each planet renders a simple fallback and crossfades
 once they arrive.
 
 ## Fonts

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import type { PlanetId, RichText as RichTextValue } from "@/config/content";
+import type { SectionId, RichText as RichTextValue } from "@/config/content";
 import { useDestinationReady } from "@/components/effects/ScrollStage/ScrollStage";
 import { revealTimings } from "@/lib/revealSequence";
 import { Starfield } from "@/components/effects/Starfield";
@@ -16,7 +16,7 @@ type PlanetSwitchProps = {
     title: RichTextValue;
     body: string;
     cta: { label: string; href: string };
-    active: PlanetId;
+    active: SectionId;
   };
   /** Accent glow: warm for Mars, blue for Earth — both over the same starry black. */
   tone: "mars" | "earth";
