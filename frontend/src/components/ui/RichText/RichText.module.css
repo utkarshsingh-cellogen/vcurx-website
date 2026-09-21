@@ -33,7 +33,7 @@
 
 .shown .word {
   animation: lineIn 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-delay: calc(var(--text-delay, 0s) + var(--line, 0) * 0.22s);
+  animation-delay: calc(var(--text-delay, 0s) + var(--line, 0) * var(--line-stagger, 0.22s));
 }
 
 @keyframes lineIn {

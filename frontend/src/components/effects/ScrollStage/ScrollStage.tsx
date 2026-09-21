@@ -1,8 +1,15 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
+import { destinationPhase, DESTINATION_READY_AT, DESTINATION_VISIBLE_AT, type DestinationPhase } from "@/lib/revealSequence";
 
 const ScrollProgressContext = createContext<RefObject<number> | null>(null);
+const DestinationReadyContext = createContext(true);
+
+/** Timed reveals must wait until the pinned destination has finished fading in. */
+export function useDestinationReady() {
+  return useContext(DestinationReadyContext);
+}
 
 /** Live 0–1 scroll progress through the nearest ScrollStage (a ref, so reading it never re-renders). */
 export function useScrollProgressRef() {
@@ -24,7 +31,7 @@ type ScrollStageProps = {
 export function ScrollStage({ children, className, stageClassName, destination, destinationClassName }: ScrollStageProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const progressRef = useRef(0);
-  const [destinationVisible, setDestinationVisible] = useState(false);
+  const [phase, setPhase] = useState<DestinationPhase>("hidden");
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -38,7 +45,7 @@ export function ScrollStage({ children, className, stageClassName, destination, 
       const progress = distance > 0 ? Math.min(Math.max(-rect.top / distance, 0), 1) : 0;
       progressRef.current = progress;
       section.style.setProperty("--progress", progress.toFixed(4));
-      setDestinationVisible(progress >= 0.72);
+      setPhase((previous) => destinationPhase(previous, progress));
     };
     const schedule = () => {
       if (!frame) frame = requestAnimationFrame(update);
@@ -56,12 +63,17 @@ export function ScrollStage({ children, className, stageClassName, destination, 
 
   return (
     <ScrollProgressContext.Provider value={progressRef}>
-      <section ref={sectionRef} className={className}>
+      <section ref={sectionRef} className={className} style={{
+        "--destination-start": DESTINATION_VISIBLE_AT,
+        "--destination-ready": DESTINATION_READY_AT,
+      } as CSSProperties}>
         <div className={stageClassName}>
           {children}
           {destination && (
-            <div className={destinationClassName} hidden={!destinationVisible} inert={!destinationVisible}>
-              {destination}
+            <div className={destinationClassName} hidden={phase === "hidden"} inert={phase !== "ready"}>
+              <DestinationReadyContext.Provider value={phase === "ready"}>
+                {destination}
+              </DestinationReadyContext.Provider>
             </div>
           )}
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useLayoutEffect, useRef, useState, type CSSProperties } from "react";
+import { TEXT_LINE_STAGGER } from "@/lib/revealSequence";
 import type { RichText as RichTextValue } from "@/config/content";
 import styles from "./RichText.module.css";
 
@@ -11,19 +12,23 @@ type RichTextProps = {
   /** Reveal each rendered line together, including after responsive wrapping. */
   reveal?: boolean;
   delay?: number;
+  /** Supplied by a shared sequence; omit to reveal independently on intersection. */
+  play?: boolean;
+  onLineCount?: (count: number) => void;
 };
 
 /** Heading-style text: plain runs are dimmed, `{ hl }` runs are bright, "\n" breaks the line. */
-export function RichText({ value, as: Tag = "h2", className, reveal = false, delay = 0 }: RichTextProps) {
+export function RichText({ value, as: Tag = "h2", className, reveal = false, delay = 0, play, onLineCount }: RichTextProps) {
   const ref = useRef<HTMLHeadingElement & HTMLParagraphElement>(null);
   const [shown, setShown] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const element = ref.current;
     if (!reveal || !element) return;
     let disposed = false;
     const measureLines = () => {
       if (disposed) return;
+      if (!element.getClientRects().length) return;
       let line = -1;
       let previousTop = -Infinity;
       const words = element.querySelectorAll<HTMLElement>("[data-line-word]");
@@ -36,31 +41,34 @@ export function RichText({ value, as: Tag = "h2", className, reveal = false, del
         }
         word.style.setProperty("--line", String(line));
       });
+      onLineCount?.(Math.max(1, line + 1));
     };
     measureLines();
     void document.fonts.ready.then(measureLines);
     const resize = new ResizeObserver(measureLines);
     resize.observe(element);
-    const observer = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting) return;
+    const observer = play === undefined ? new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting || entry.intersectionRatio < 0.2) {
+        setShown(false);
+        return;
+      }
       measureLines();
       setShown(true);
-      observer.disconnect();
-    }, { threshold: 0.2, rootMargin: "0px 0px -8% 0px" });
-    observer.observe(element);
+    }, { threshold: [0, 0.2], rootMargin: "0px 0px -8% 0px" }) : null;
+    observer?.observe(element);
     return () => {
       disposed = true;
-      observer.disconnect();
+      observer?.disconnect();
       resize.disconnect();
     };
-  }, [reveal, value]);
+  }, [reveal, value, play, onLineCount]);
 
   const label = value.map((part) => typeof part === "string" ? part : part.hl).join("");
 
   if (reveal) {
     return (
-      <Tag ref={ref} className={`${styles.text} ${styles.lineReveal} ${shown ? styles.shown : ""} ${className ?? ""}`}
-        style={{ "--text-delay": `${delay}s` } as CSSProperties}>
+      <Tag ref={ref} className={`${styles.text} ${styles.lineReveal} ${(play ?? shown) ? styles.shown : ""} ${className ?? ""}`}
+        style={{ "--text-delay": `${delay}s`, "--line-stagger": `${TEXT_LINE_STAGGER}s` } as CSSProperties}>
         <span className={styles.accessibleText}>{label}</span>
         {value.map((part, index) => {
           const text = typeof part === "string" ? part : part.hl;

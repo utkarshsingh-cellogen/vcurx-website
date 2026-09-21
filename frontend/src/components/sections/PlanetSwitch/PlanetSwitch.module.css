@@ -85,9 +85,46 @@
   color: #111;
   font-size: 14px;
   font-weight: 500;
+  visibility: hidden;
+  opacity: 0;
+  clip-path: inset(0 49% round 999px);
   transition:
     transform 0.5s var(--ease-out),
     box-shadow 0.5s var(--ease-out);
+}
+
+.ctaLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+}
+
+.section[data-sequence="playing"] .cta {
+  animation: buttonOpen 0.65s var(--ease-out) var(--button-delay) both;
+}
+
+.section[data-sequence="playing"] .ctaLabel {
+  animation: labelIn 0.4s ease calc(var(--button-delay) + 0.3s) both;
+}
+
+@keyframes buttonOpen {
+  from { visibility: hidden; opacity: 0; clip-path: inset(0 49% round 999px); }
+  18% { opacity: 1; }
+  to { visibility: visible; opacity: 1; clip-path: inset(0 0 round 999px); }
+}
+
+@keyframes labelIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.cta:focus-visible,
+.cta:focus-visible .ctaLabel {
+  animation: none !important;
+  visibility: visible;
+  opacity: 1;
+  clip-path: none;
 }
 
 .cta:hover {
@@ -97,4 +134,14 @@
 
 .switcher {
   margin-top: 48px;
+}
+
+@media (prefers-reduced-motion: reduce), (scripting: none) {
+  .section[data-sequence] .cta,
+  .section[data-sequence] .ctaLabel {
+    animation: none;
+    visibility: visible;
+    opacity: 1;
+    clip-path: none;
+  }
 }

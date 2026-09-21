@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { planets, type PlanetId } from "@/config/content";
 import { Icon } from "@/components/ui/Icon";
 import styles from "./PlanetSwitcher.module.css";
@@ -5,10 +6,13 @@ import styles from "./PlanetSwitcher.module.css";
 type PlanetSwitcherProps = {
   active: PlanetId;
   className?: string;
+  reveal?: boolean;
+  playing?: boolean;
+  delay?: number;
 };
 
 /** Pill of planets with the active one centred; arrows jump to the neighbouring planet's section. */
-export function PlanetSwitcher({ active, className }: PlanetSwitcherProps) {
+export function PlanetSwitcher({ active, className, reveal = false, playing = false, delay = 0 }: PlanetSwitcherProps) {
   const index = planets.findIndex((p) => p.id === active);
   const prev = planets[index - 1];
   const next = planets[index + 1];
@@ -16,7 +20,8 @@ export function PlanetSwitcher({ active, className }: PlanetSwitcherProps) {
   const visible = [prev, planets[index], next];
 
   return (
-    <nav className={`${styles.switcher} ${className ?? ""}`} aria-label="Planets">
+    <nav className={`${styles.switcher} ${reveal ? styles.reveal : ""} ${playing ? styles.playing : ""} ${className ?? ""}`}
+      style={{ "--selector-delay": `${delay}s` } as CSSProperties} aria-label="Planets">
       <Arrow planet={prev} direction="prev" />
       <ul className={styles.pill}>
         {visible.map((planet, i) =>
@@ -29,11 +34,11 @@ export function PlanetSwitcher({ active, className }: PlanetSwitcherProps) {
                   aria-current={i === 1 ? "true" : undefined}
                 >
                   {i === 1 && <Icon name="planet" size={18} />}
-                  {planet.name}
+                  <span className={styles.itemLabel}>{planet.name}</span>
                 </a>
               ) : (
                 <span className={`${styles.item} ${styles.soon}`} title="Coming soon">
-                  {planet.name}
+                  <span className={styles.itemLabel}>{planet.name}</span>
                 </span>
               )}
             </li>
