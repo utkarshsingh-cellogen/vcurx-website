@@ -65,7 +65,80 @@ a.arrow:hover {
 }
 
 .disabled {
+  --arrow-opacity: 0.3;
   opacity: 0.3;
+}
+
+/* Expand the track from its centre; reveal icons, arrows and names in order. */
+.reveal .pill {
+  visibility: hidden;
+  opacity: 0;
+  clip-path: inset(0 49% round 18px);
+}
+
+.reveal .itemLabel,
+.reveal .item svg,
+.reveal .arrow {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.playing .pill {
+  animation: trackOpen 1.05s var(--ease-out) var(--selector-delay) both;
+}
+
+.playing .item svg {
+  animation: contentIn 0.3s ease calc(var(--selector-delay) + 0.18s) both;
+}
+
+.playing .arrow {
+  animation: arrowIn 0.4s ease calc(var(--selector-delay) + 0.5s) both;
+}
+
+.playing .itemLabel {
+  animation: contentIn 0.45s ease calc(var(--selector-delay) + 0.8s) both;
+}
+
+@keyframes trackOpen {
+  from { visibility: hidden; opacity: 0; clip-path: inset(0 49% round 18px); }
+  20% { opacity: 1; }
+  to { visibility: visible; opacity: 1; clip-path: inset(0 0 round 18px); }
+}
+
+@keyframes contentIn {
+  from { visibility: hidden; opacity: 0; }
+  to { visibility: visible; opacity: 1; }
+}
+
+@keyframes arrowIn {
+  from { visibility: hidden; opacity: 0; }
+  to { visibility: visible; opacity: var(--arrow-opacity, 1); }
+}
+
+.reveal:focus-within .pill,
+.reveal:focus-within .itemLabel,
+.reveal:focus-within .item svg,
+.reveal:focus-within .arrow {
+  animation: none;
+  visibility: visible;
+  opacity: 1;
+  clip-path: none;
+}
+
+.reveal:focus-within .disabled { opacity: 0.3; }
+
+@media (prefers-reduced-motion: reduce), (scripting: none) {
+  .reveal .pill,
+  .reveal .itemLabel,
+  .reveal .item svg,
+  .reveal .arrow {
+    animation: none;
+    visibility: visible;
+    opacity: 1;
+    clip-path: none;
+  }
+
+  .reveal .disabled { opacity: 0.3; }
 }
 
 @media (max-width: 480px) {

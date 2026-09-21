@@ -34,7 +34,7 @@
 /* The destination replaces the surface inside this same pinned viewport. */
 .stage {
   --arrival: clamp(0, calc((var(--progress) - 0.68) / 0.16), 1);
-  --content-arrival: clamp(0, calc((var(--progress) - 0.72) / 0.12), 1);
+  --content-arrival: clamp(0, calc((var(--progress) - var(--destination-start)) / (var(--destination-ready) - var(--destination-start))), 1);
   background: #000;
 }
 
