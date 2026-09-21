@@ -39,7 +39,7 @@ function splitLines(lines: AnimatedHeadlineProps["lines"]): Segment[][] {
 }
 
 /**
- * Serif headline whose letters rise out of a blur one by one.
+ * Serif headline whose lines fade and lift into place together.
  * Accent segments render in italic with a moving light shimmer.
  */
 export function AnimatedHeadline({ lines, sparkleIndex, className }: AnimatedHeadlineProps) {
@@ -49,7 +49,7 @@ export function AnimatedHeadline({ lines, sparkleIndex, className }: AnimatedHea
   return (
     <h1 className={`${styles.headline} ${className ?? ""}`} aria-label={label}>
       {split.map((line, li) => (
-        <span key={li} className={styles.line} aria-hidden="true">
+        <span key={li} className={styles.line} aria-hidden="true" style={{ "--line": li } as CSSProperties}>
           {line.map((segment) => {
             const content = segment.words.map((word) =>
               "space" in word ? (

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, type ReactNode, type RefObject } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 
 const ScrollProgressContext = createContext<RefObject<number> | null>(null);
 
@@ -13,15 +13,18 @@ type ScrollStageProps = {
   children: ReactNode;
   className?: string;
   stageClassName?: string;
+  destination?: ReactNode;
+  destinationClassName?: string;
 };
 
 /**
  * A tall section whose child "stage" stays pinned to the viewport while the user scrolls through it.
  * Progress is exposed as the CSS variable `--progress` (0–1) and via `useScrollProgressRef()`.
  */
-export function ScrollStage({ children, className, stageClassName }: ScrollStageProps) {
+export function ScrollStage({ children, className, stageClassName, destination, destinationClassName }: ScrollStageProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const progressRef = useRef(0);
+  const [destinationVisible, setDestinationVisible] = useState(false);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -35,6 +38,7 @@ export function ScrollStage({ children, className, stageClassName }: ScrollStage
       const progress = distance > 0 ? Math.min(Math.max(-rect.top / distance, 0), 1) : 0;
       progressRef.current = progress;
       section.style.setProperty("--progress", progress.toFixed(4));
+      setDestinationVisible(progress >= 0.72);
     };
     const schedule = () => {
       if (!frame) frame = requestAnimationFrame(update);
@@ -53,7 +57,14 @@ export function ScrollStage({ children, className, stageClassName }: ScrollStage
   return (
     <ScrollProgressContext.Provider value={progressRef}>
       <section ref={sectionRef} className={className}>
-        <div className={stageClassName}>{children}</div>
+        <div className={stageClassName}>
+          {children}
+          {destination && (
+            <div className={destinationClassName} hidden={!destinationVisible} inert={!destinationVisible}>
+              {destination}
+            </div>
+          )}
+        </div>
       </section>
     </ScrollProgressContext.Provider>
   );

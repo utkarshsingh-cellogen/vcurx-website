@@ -15,6 +15,6 @@ export const siteConfig = {
     headline: [[{ text: "V", bold: true }, { text: "curX" }]] satisfies HeadlineSegment[][],
     /** Index of the headline letter that holds the ✦ sparkle (1 = the "c"). */
     sparkleIndex: 1,
-    tagline: "we cure us",
+    tagline: "Healing Beyond",
   },
 } as const;

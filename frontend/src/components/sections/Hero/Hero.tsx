@@ -1,4 +1,6 @@
 import { siteConfig } from "@/config/site";
+import { toEarth } from "@/config/content";
+import { PlanetSwitch } from "@/components/sections/PlanetSwitch";
 import { CosmicBackground } from "@/components/effects/CosmicBackground";
 import { Parallax } from "@/components/effects/Parallax";
 import { ScrollStage } from "@/components/effects/ScrollStage";
@@ -9,8 +11,11 @@ export function Hero() {
   const { headline, sparkleIndex, tagline } = siteConfig.hero;
 
   return (
-    <ScrollStage className={styles.hero} stageClassName={styles.stage}>
+    <ScrollStage className={styles.hero} stageClassName={styles.stage}
+      destination={<PlanetSwitch content={toEarth} tone="earth" embedded />}
+      destinationClassName={styles.destination}>
       <CosmicBackground />
+      <p className={styles.description}>Scroll from Earth into India, then enter Delhi to continue exploring.</p>
 
       {/* Fades and lifts away as the planet approaches on scroll */}
       <div className={styles.scrollAway}>

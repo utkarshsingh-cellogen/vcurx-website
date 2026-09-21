@@ -3,20 +3,19 @@
 /** Text with optional emphasised runs: plain strings render dimmed, `{ hl }` renders bright. */
 export type RichText = readonly (string | { hl: string })[];
 
-export type PlanetId = "mars" | "earth" | "jupiter";
+export type PlanetId = "earth" | "jupiter";
 
 export const planets: readonly { id: PlanetId; name: string; href?: string }[] = [
-  { id: "mars", name: "Mars", href: "#top" },
-  { id: "earth", name: "Earth", href: "#home" },
+  { id: "earth", name: "Earth", href: "#top" },
   { id: "jupiter", name: "Jupiter" }, // no section yet — shown as "coming soon"
 ];
 
 export const toEarth = {
   id: "switch-earth",
-  title: ["Let's switch to another ", { hl: "world of Healthcare" }, " and discover more from this journey!"] as RichText,
+  title: ["Let's explore the ", { hl: "world of Healthcare" }, " and discover more from this journey!"] as RichText,
   body: "From the frontier of discovery to the place it matters most — us.",
-  cta: { label: "Go to Earth!", href: "#home" },
-  active: "mars" as PlanetId,
+  cta: { label: "Continue exploring", href: "#home" },
+  active: "earth" as PlanetId,
 };
 
 export const home = {

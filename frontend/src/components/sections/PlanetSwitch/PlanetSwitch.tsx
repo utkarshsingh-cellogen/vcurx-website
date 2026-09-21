@@ -16,23 +16,20 @@ type PlanetSwitchProps = {
   };
   /** Accent glow: warm for Mars, blue for Earth — both over the same starry black. */
   tone: "mars" | "earth";
+  embedded?: boolean;
 };
 
 /** Interlude between planets: a centred prompt, a CTA to the next section and the planet switcher. */
-export function PlanetSwitch({ content, tone }: PlanetSwitchProps) {
+export function PlanetSwitch({ content, tone, embedded = false }: PlanetSwitchProps) {
   const { id, title, body, cta, active } = content;
   return (
-    <section id={id} className={`${styles.section} ${styles[tone]}`}>
+    <section id={id} className={`${styles.section} ${styles[tone]} ${embedded ? styles.embedded : ""}`}>
       <Starfield />
       <div className={styles.backdrop} aria-hidden="true" />
 
       <div className={styles.center}>
-        <Reveal>
-          <RichText value={title} className={styles.title} />
-        </Reveal>
-        <Reveal delay={0.15}>
-          <p className={styles.body}>{body}</p>
-        </Reveal>
+        <RichText value={title} className={styles.title} reveal />
+        <RichText value={[{ hl: body }]} as="p" className={styles.body} reveal delay={0.2} />
         <Reveal delay={0.25}>
           <a href={cta.href} className={styles.cta}>
             {cta.label}

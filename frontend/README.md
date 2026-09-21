@@ -54,8 +54,21 @@ All copy below the hero lives in `src/config/content.ts`.
   ([Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Mars_Viking_MDIM21_ClrMosaic_1km.jpg))
 - `mars-height.png` — NASA MGS MOLA elevation model, 1024×512
   ([USGS Astrogeology](https://astrogeology.usgs.gov/search/map/mars_mgs_mola_dem_463m))
-- `earth-color.webp`, `earth-clouds.webp` — NASA Visible Earth Blue Marble, 2048×1024
+- `earth-clouds.webp` — NASA Visible Earth Blue Marble, 2048×1024
   ([NASA Visible Earth](https://visibleearth.nasa.gov/collection/1484/blue-marble))
+- `earth-color.webp` — NASA Blue Marble Next Generation, December 2004, with topography
+  and bathymetry, resized from 21600×10800 to 2048×1024.
+- `earth-india-4096.webp`, `earth-india-2048.webp` — regional detail from the same
+  [NASA source](https://assets.science.nasa.gov/content/dam/science/esd/eo/images/bmng/bmng-topography-bathymetry/december/world.topo.bathy.200412.3x21600x10800.jpg).
+  Bounds: 35°E–120°E, 10°S–75°N. Crop the source at x=12900, y=900, width=5100,
+  height=5100, then resize to 4096² / 2048² and encode WebP at quality 92.
+  The base globe uses WebP quality 90. Matching imagery avoids seams when blending.
+
+The hero first centres India, then dives into Delhi (28.6139°N, 77.2090°E) and reveals
+the first interlude inside the same pinned viewport. The camera is configured in
+`src/components/effects/CosmicBackground/camera.ts`. Regional detail loads after the base
+textures, fades in on approach, and uses the 2048 version on GPUs limited to smaller
+textures. The small base texture remains available if the detail request fails.
 
 
 All are public domain. Until textures load, each planet renders a simple fallback and crossfades
