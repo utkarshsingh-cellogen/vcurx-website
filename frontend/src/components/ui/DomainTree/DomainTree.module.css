@@ -209,6 +209,51 @@
 }
 
 /* ==========================================================
+   Sibling groups
+
+   Two named groups under a sub-layer are siblings, so they fork apart. With
+   two equal branches their centres sit at 25% and 75%, which is why the bar
+   spans exactly half the column — the same geometry as the root bus above.
+   ========================================================== */
+.forkBar {
+  width: 50%;
+  height: 1px;
+  background: var(--line);
+}
+
+.groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(10px, 1.4vw, 22px);
+  width: 100%;
+}
+
+.branch {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding-top: 18px;
+}
+
+/* Each branch drops its own connector from the fork bar. */
+.branch::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 1px;
+  height: 18px;
+  background: var(--line);
+}
+
+/* A forked branch is half a column wide; the status tag would reserve room
+   the product name needs, even while it is transparent. */
+.groups .leafStatus {
+  display: none;
+}
+
+/* ==========================================================
    Leaves
    ========================================================== */
 .leaves {
@@ -300,7 +345,7 @@
    Four columns only once each can hold a product name beside its status
    tag — the tag reserves its width even while it is transparent.
    ========================================================== */
-@media (max-width: 1079px) {
+@media (max-width: 1279px) {
   .bus {
     display: none;
   }
