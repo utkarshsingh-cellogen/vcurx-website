@@ -50,10 +50,33 @@ export function bindFullscreenTriangle(gl: WebGLRenderingContext, program: WebGL
 }
 
 /**
+ * Decodes an image off the main thread where the browser allows it.
+ *
+ * Passing an HTMLImageElement straight to texImage2D looks cheap, but if the
+ * bitmap is not decoded yet the browser has to decode it synchronously at that
+ * moment — 16.7 million pixels for the 4096 crop, on the main thread, while the
+ * page is trying to animate.
+ */
+async function decodeImage(src: string): Promise<ImageBitmap | HTMLImageElement> {
+  if (typeof createImageBitmap === "function") {
+    const response = await fetch(src);
+    if (!response.ok) throw new Error(`texture ${src}: ${response.status}`);
+    return createImageBitmap(await response.blob());
+  }
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.decoding = "async";
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+/**
  * Loads an image into a texture on `unit`. Longitude wraps (REPEAT on S), latitude clamps.
  * `isAlive` lets callers ignore loads that finish after teardown.
  */
-export function loadTexture(
+export async function loadTexture(
   gl: WebGLRenderingContext,
   unit: number,
   texture: WebGLTexture,
@@ -61,25 +84,25 @@ export function loadTexture(
   format: number,
   isAlive: () => boolean,
   options: { clampLongitude?: boolean; mipmaps?: boolean } = {},
-) {
-  return new Promise<void>((resolve, reject) => {
-    const img = new Image();
-    img.decoding = "async";
-    img.onload = () => {
-      if (!isAlive()) return resolve();
-      gl.activeTexture(gl.TEXTURE0 + unit);
-      gl.bindTexture(gl.TEXTURE_2D, texture);
-      gl.texImage2D(gl.TEXTURE_2D, 0, format, format, gl.UNSIGNED_BYTE, img);
-      const powerOfTwo = (n: number) => (n & (n - 1)) === 0;
-      const mipmaps = options.mipmaps && powerOfTwo(img.width) && powerOfTwo(img.height);
-      if (mipmaps) gl.generateMipmap(gl.TEXTURE_2D);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, mipmaps ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, options.clampLongitude ? gl.CLAMP_TO_EDGE : gl.REPEAT);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      resolve();
-    };
-    img.onerror = reject;
-    img.src = src;
-  });
+): Promise<void> {
+  const source = await decodeImage(src);
+  if (!isAlive()) {
+    if ("close" in source) source.close();
+    return;
+  }
+
+  gl.activeTexture(gl.TEXTURE0 + unit);
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.texImage2D(gl.TEXTURE_2D, 0, format, format, gl.UNSIGNED_BYTE, source);
+
+  const powerOfTwo = (n: number) => (n & (n - 1)) === 0;
+  const mipmaps = Boolean(options.mipmaps) && powerOfTwo(source.width) && powerOfTwo(source.height);
+  if (mipmaps) gl.generateMipmap(gl.TEXTURE_2D);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, mipmaps ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, options.clampLongitude ? gl.CLAMP_TO_EDGE : gl.REPEAT);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+  // The GPU has its own copy now; releasing this frees the decoded bitmap.
+  if ("close" in source) source.close();
 }

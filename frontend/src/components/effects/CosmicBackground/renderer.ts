@@ -13,7 +13,7 @@ type RendererOptions = {
   getScrollProgress: () => number;
 };
 
-const MAX_PIXEL_RATIO = 2;
+const MAX_PIXEL_RATIO = 1.5;
 const TEXTURE_FADE_MS = 1200;
 
 /** A scroll-driven camera carries the opening Earth scene into the destination. */
@@ -34,8 +34,9 @@ function detailTextureSize(gl: WebGLRenderingContext): 2048 | 4096 {
 
   const ratio = Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO);
   const devicePixels = Math.max(window.innerWidth, window.innerHeight) * ratio;
-  // Below roughly 1600 device pixels the 2048 crop already out-resolves the screen.
-  return devicePixels >= 1600 ? 4096 : 2048;
+  // The 4096 crop costs 3.9 MB and 16.7M pixels to decode, upload and mipmap.
+  // Below roughly 3200 device pixels the 2048 crop already out-resolves the view.
+  return devicePixels >= 3200 ? 4096 : 2048;
 }
 
 export function createCosmosRenderer(
@@ -97,6 +98,11 @@ export function createCosmosRenderer(
     // visible frames so a slow texture download or background tab cannot skip it.
     if (texturesReadyAt !== null) rotationElapsed += delta / 1000;
     scroll = still ? getScrollProgress() : scroll + (getScrollProgress() - scroll) * ease;
+    // Hero.module.css drives --arrival to 1 at progress 0.84, which makes the
+    // stage's black overlay fully opaque. Everything drawn past that point is
+    // invisible, so stop paying for it — this is also exactly when the visitor
+    // is reading the destination and would feel any jank.
+    if (ready && scroll >= 0.85) return;
     const camera = earthCamera(canvas.width / canvas.height, scroll, elapsed, still, rotationElapsed);
     const textureMix = texturesReadyAt === null ? 0 : still ? 1 : Math.min((now - texturesReadyAt) / TEXTURE_FADE_MS, 1);
     gl.uniform1f(uTime, still ? 20 : elapsed + 20);
@@ -115,9 +121,18 @@ export function createCosmosRenderer(
   };
 
   const loop = (now: number) => {
-    if (visible && !document.hidden) draw(now);
+    frame = 0;
+    if (destroyed || !visible || document.hidden) return;
+    draw(now);
     frame = requestAnimationFrame(loop);
   };
+  /** Restarts the loop after it has parked offscreen or in a hidden tab. */
+  const resume = () => {
+    if (destroyed || still || frame || !visible || document.hidden) return;
+    previousTime = performance.now();
+    frame = requestAnimationFrame(loop);
+  };
+  const onVisibilityChange = () => resume();
   const scheduleStill = () => {
     if (destroyed || !still || frame) return;
     frame = requestAnimationFrame(() => {
@@ -143,6 +158,7 @@ export function createCosmosRenderer(
   };
   const observer = new IntersectionObserver(([entry]) => {
     visible = entry.isIntersecting;
+    resume();
   });
   const resizeObserver = new ResizeObserver(resize);
   resizeObserver.observe(canvas);
@@ -153,6 +169,7 @@ export function createCosmosRenderer(
     scheduleStill();
   } else {
     window.addEventListener("pointermove", onPointerMove, { passive: true });
+    document.addEventListener("visibilitychange", onVisibilityChange);
     observer.observe(canvas);
     frame = requestAnimationFrame(loop);
   }
@@ -183,6 +200,7 @@ export function createCosmosRenderer(
     window.removeEventListener("resize", resize);
     window.removeEventListener("scroll", scheduleStill);
     window.removeEventListener("pointermove", onPointerMove);
+    document.removeEventListener("visibilitychange", onVisibilityChange);
     observer.disconnect();
     resizeObserver.disconnect();
     gl.deleteTexture(colorTex);
