@@ -4,7 +4,7 @@
   list-style: none;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px), (max-height: 640px) {
   .list {
     display: block;
   }

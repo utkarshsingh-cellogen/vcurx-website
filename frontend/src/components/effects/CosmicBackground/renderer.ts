@@ -17,6 +17,27 @@ const MAX_PIXEL_RATIO = 2;
 const TEXTURE_FADE_MS = 1200;
 
 /** A scroll-driven camera carries the opening Earth scene into the destination. */
+/**
+ * Which regional-detail crop to fetch. GPU capability is the wrong question —
+ * every modern phone reports MAX_TEXTURE_SIZE well above 4096, so that test
+ * alone hands the largest crop to a 390px screen. What matters is how much
+ * detail the display can resolve, and whether the connection can afford it.
+ */
+function detailTextureSize(gl: WebGLRenderingContext): 2048 | 4096 {
+  if (gl.getParameter(gl.MAX_TEXTURE_SIZE) < 4096) return 2048;
+
+  const connection = (navigator as Navigator & {
+    connection?: { saveData?: boolean; effectiveType?: string };
+  }).connection;
+  if (connection?.saveData) return 2048;
+  if (connection?.effectiveType && /2g|3g/.test(connection.effectiveType)) return 2048;
+
+  const ratio = Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO);
+  const devicePixels = Math.max(window.innerWidth, window.innerHeight) * ratio;
+  // Below roughly 1600 device pixels the 2048 crop already out-resolves the screen.
+  return devicePixels >= 1600 ? 4096 : 2048;
+}
+
 export function createCosmosRenderer(
   canvas: HTMLCanvasElement,
   { still, onReady, getScrollProgress }: RendererOptions,
@@ -144,7 +165,7 @@ export function createCosmosRenderer(
     texturesReadyAt = performance.now();
     scheduleStill();
     // The globe appears first; regional detail loads without blocking its intro.
-    const detailSize = gl.getParameter(gl.MAX_TEXTURE_SIZE) >= 4096 ? 4096 : 2048;
+    const detailSize = detailTextureSize(gl);
     return loadTexture(gl, 2, detailTex, `/textures/earth-india-${detailSize}.webp`, gl.RGB,
       () => !destroyed, { clampLongitude: true, mipmaps: true })
       .then(() => {
