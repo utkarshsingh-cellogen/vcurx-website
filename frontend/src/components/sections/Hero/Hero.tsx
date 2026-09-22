@@ -32,8 +32,6 @@ export function Hero() {
           </p>
         </Parallax>
       </div>
-
-      <span className={styles.scrollCue} aria-hidden="true" />
     </ScrollStage>
   );
 }

@@ -1,9 +1,13 @@
-/* Tall scroll track: the extra height is the distance we "fly" toward the planet */
+/*
+ * Tall scroll track: the extra height is the distance we fly toward the planet.
+ * The stage is sticky, so the first viewport height is never travelled — what
+ * the visitor actually scrolls is this minus 100vh.
+ */
 .hero {
   --progress: 0;
   position: relative;
-  height: 420vh;
-  height: 420svh;
+  height: 260vh;
+  height: 260svh;
 }
 
 .description {
@@ -33,7 +37,7 @@
 
 /* The destination replaces the surface inside this same pinned viewport. */
 .stage {
-  --arrival: clamp(0, calc((var(--progress) - 0.68) / 0.16), 1);
+  --arrival: clamp(0, calc((var(--progress) - 0.6) / 0.24), 1);
   --content-arrival: clamp(0, calc((var(--progress) - var(--destination-start)) / (var(--destination-ready) - var(--destination-start))), 1);
   background: #000;
 }
@@ -54,7 +58,10 @@
   z-index: 1;
   overflow-y: auto;
   opacity: var(--content-arrival);
-  transform: scale(calc(1.06 - var(--content-arrival) * 0.06));
+  /* Rises the last few vh as it settles, so arriving reads as landing. */
+  transform:
+    translate3d(0, calc((1 - var(--content-arrival)) * 3.5vh), 0)
+    scale(calc(1.05 - var(--content-arrival) * 0.05));
   transform-origin: center;
 }
 
@@ -76,44 +83,6 @@
   opacity: calc(1 - var(--progress) * 4.2);
   transform: translateY(calc(var(--progress) * -18vh)) scale(calc(1 - var(--progress) * 0.12));
   will-change: transform, opacity;
-}
-
-/* Thin animated line inviting a scroll */
-.scrollCue {
-  position: absolute;
-  left: 50%;
-  bottom: 28px;
-  width: 1px;
-  height: 48px;
-  overflow: hidden;
-  background: rgba(247, 243, 236, 0.15);
-  opacity: calc(1 - var(--progress) * 6);
-  animation: cueIn 1s var(--ease-out) 2.6s both;
-}
-
-.scrollCue::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: var(--ink);
-  transform: translateY(-100%);
-  animation: cueLine 2.2s var(--ease-in-out) 2.6s infinite;
-}
-
-@keyframes cueIn {
-  from {
-    opacity: 0;
-  }
-}
-
-@keyframes cueLine {
-  0% {
-    transform: translateY(-100%);
-  }
-  60%,
-  100% {
-    transform: translateY(100%);
-  }
 }
 
 .content {

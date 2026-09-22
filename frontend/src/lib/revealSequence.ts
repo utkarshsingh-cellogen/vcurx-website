@@ -1,5 +1,5 @@
 /** Shared by the pinned destination's CSS fade and its animation trigger. */
-export const DESTINATION_VISIBLE_AT = 0.72;
+export const DESTINATION_VISIBLE_AT = 0.64;
 export const DESTINATION_READY_AT = 0.84;
 export type DestinationPhase = "hidden" | "arriving" | "ready";
 
