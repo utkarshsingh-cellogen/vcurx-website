@@ -20,12 +20,7 @@ export default function DomainsPage() {
 
       <div className={styles.body}>
         <header className={styles.header}>
-          <p className={styles.eyebrow}>The map</p>
           <h1 className={styles.title}>Our Domain Intelligence</h1>
-          <p className={styles.lede}>
-            {domains.length} domains, {products.length} products. Follow a branch to its products,
-            or filter to a single domain.
-          </p>
         </header>
 
         <DomainTree />

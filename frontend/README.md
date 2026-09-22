@@ -21,11 +21,14 @@ src/
 │   ├── page.tsx              # Home page
 │   ├── domains/[slug]/       # One page per domain (static)
 │   ├── products/[slug]/      # One page per product (static)
+│   ├── robots.ts             # robots.txt
+│   ├── sitemap.ts            # sitemap.xml, generated from products.ts
+│   ├── opengraph-image.tsx   # Share card, rendered at build time
 │   ├── globals.css           # Design tokens + base styles
 │   └── icon.svg              # Favicon
 ├── components/
 │   ├── sections/             # Hero, Domains (orbit map), PlanetSwitch
-│   ├── effects/              # CosmicBackground + Globe (WebGL), Parallax, ScrollStage, Starfield
+│   ├── effects/              # CosmicBackground (WebGL), DeepSpace, Parallax, ScrollStage, Starfield
 │   └── ui/                   # Primitives: AnimatedHeadline, GlassCard, WaveMarquee, PlanetSwitcher, …
 ├── data/
 │   └── products.ts           # Domains + products — the single source of truth
@@ -80,14 +83,23 @@ A new domain means one entry in `domains` (with a `--domain-*` colour token in
 Each domain's accent is a token in `src/app/globals.css`: `--domain-therapeutics`,
 `--domain-research`, `--domain-clinical`, `--domain-diagnostic`.
 
+## Headers and metadata
+
+`next.config.ts` sets the security headers on every route: a Content Security Policy,
+`Cross-Origin-Opener-Policy`, `Referrer-Policy`, `X-Content-Type-Options`, `X-Frame-Options`,
+`Permissions-Policy` and HSTS. The policy keeps `'unsafe-inline'` on `script-src` on purpose —
+Next streams the RSC payload through inline scripts, so a nonce would need per-request
+middleware and every statically generated page would turn dynamic.
+
+Shared links need an absolute origin. `siteConfig.url` reads `NEXT_PUBLIC_SITE_URL`, falls back
+to Vercel's production domain at build time, and finally to the deployed URL. It feeds
+`metadataBase`, the sitemap and `robots.txt`. `src/app/opengraph-image.tsx` renders the card
+itself, so there is no image file to keep in step with the wordmark.
+
 ## Images and textures
 
 `public/textures/` holds the planet surfaces rendered in WebGL:
 
-- `mars-color.webp` — NASA/USGS Viking MDIM 2.1 colour mosaic, downscaled to 4096×2048
-  ([Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Mars_Viking_MDIM21_ClrMosaic_1km.jpg))
-- `mars-height.png` — NASA MGS MOLA elevation model, 1024×512
-  ([USGS Astrogeology](https://astrogeology.usgs.gov/search/map/mars_mgs_mola_dem_463m))
 - `earth-clouds.webp` — NASA Visible Earth Blue Marble, 2048×1024
   ([NASA Visible Earth](https://visibleearth.nasa.gov/collection/1484/blue-marble))
 - `earth-color.webp` — NASA Blue Marble Next Generation, December 2004, with topography

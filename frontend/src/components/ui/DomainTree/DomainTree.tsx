@@ -2,12 +2,28 @@
 
 import Link from "next/link";
 import { useState, type CSSProperties } from "react";
-import { domains, groupedProducts, productsIn, type DomainSlug } from "@/data/products";
+import { domains, groupedProducts, productsIn, type DomainSlug, type Product } from "@/data/products";
 import { Icon } from "@/components/ui/Icon";
 import { StatusTag } from "@/components/ui/StatusTag";
 import styles from "./DomainTree.module.css";
 
 type Filter = DomainSlug | "all";
+
+/** The products hanging off one group, with the bracket that ties them together. */
+function Leaves({ products }: { products: readonly Product[] }) {
+  return (
+    <ul className={styles.leaves}>
+      {products.map((product) => (
+        <li key={product.slug} className={styles.leafRow}>
+          <Link href={`/products/${product.slug}`} className={styles.leaf}>
+            <span className={styles.leafName}>{product.name}</span>
+            <StatusTag status={product.status} className={styles.leafStatus} />
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 /**
  * The whole map as one chart: VcurX AI at the root, the four domains branching
@@ -58,6 +74,10 @@ export function DomainTree() {
         <ol className={styles.columns}>
           {domains.map((domain) => {
             const count = productsIn(domain.slug).length;
+            const groups = groupedProducts(domain);
+            // Two named groups are siblings, so they fork apart rather than
+            // stacking, which reads as one flowing into the next.
+            const forked = groups.length >= 2 && groups.every((group) => group.name);
             const dimmed = filtered && filter !== domain.slug;
 
             return (
@@ -80,26 +100,32 @@ export function DomainTree() {
                   </>
                 )}
 
-                {groupedProducts(domain).map((group, i) => (
-                  <div key={group.name ?? `group-${i}`} className={styles.group}>
-                    {group.name && (
-                      <>
-                        <span className={styles.stem} aria-hidden="true" />
-                        <span className={styles.groupName}>{group.name}</span>
-                      </>
-                    )}
-                    <ul className={styles.leaves}>
-                      {group.products.map((product) => (
-                        <li key={product.slug} className={styles.leafRow}>
-                          <Link href={`/products/${product.slug}`} className={styles.leaf}>
-                            <span className={styles.leafName}>{product.name}</span>
-                            <StatusTag status={product.status} className={styles.leafStatus} />
-                          </Link>
-                        </li>
+                {forked ? (
+                  <>
+                    <span className={styles.stem} aria-hidden="true" />
+                    <span className={styles.forkBar} aria-hidden="true" />
+                    <div className={styles.groups}>
+                      {groups.map((group) => (
+                        <div key={group.name} className={styles.branch}>
+                          <span className={styles.groupName}>{group.name}</span>
+                          <Leaves products={group.products} />
+                        </div>
                       ))}
-                    </ul>
-                  </div>
-                ))}
+                    </div>
+                  </>
+                ) : (
+                  groups.map((group, i) => (
+                    <div key={group.name ?? `group-${i}`} className={styles.group}>
+                      {group.name && (
+                        <>
+                          <span className={styles.stem} aria-hidden="true" />
+                          <span className={styles.groupName}>{group.name}</span>
+                        </>
+                      )}
+                      <Leaves products={group.products} />
+                    </div>
+                  ))
+                )}
               </li>
             );
           })}
