@@ -4,24 +4,58 @@
   min-height: 100vh;
   min-height: 100svh;
   background: var(--bg);
+  color: var(--ink);
+}
+
+/* A wash of the domain's own colour, so each page has its own light. */
+.page::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 0;
+  height: 62vh;
+  background:
+    radial-gradient(
+      120% 78% at 78% 0%,
+      color-mix(in srgb, var(--domain) 20%, transparent),
+      transparent 64%
+    ),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.9), transparent);
+  pointer-events: none;
+}
+
+/* The colour wash is a positioned layer, so the nav needs lifting over it. */
+.nav {
+  position: relative;
+  z-index: 1;
 }
 
 .body {
   position: relative;
   z-index: 1;
   display: grid;
-  gap: clamp(36px, 6vh, 60px);
+  /* Stops a deck wider than the page from stretching this column. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(40px, 6vh, 68px);
   width: 100%;
-  max-width: 1060px;
+  max-width: 1160px;
   margin-inline: auto;
-  padding: clamp(32px, 7vh, 72px) var(--gutter) clamp(72px, 12vh, 120px);
+  padding: clamp(24px, 5vh, 52px) var(--gutter) clamp(72px, 12vh, 120px);
 }
 
+/* ---------- header ---------- */
 .header {
   display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  align-items: center;
+  gap: clamp(32px, 5vw, 72px);
+}
+
+.intro {
+  display: grid;
   justify-items: start;
-  gap: 12px;
-  max-width: 62ch;
+  gap: 16px;
+  max-width: 54ch;
 }
 
 .eyebrow {
@@ -42,30 +76,51 @@
 
 .title {
   font-family: var(--font-display);
-  font-size: clamp(30px, 5vw, 52px);
+  font-size: clamp(38px, 6vw, 76px);
   font-weight: 400;
-  letter-spacing: -0.015em;
+  line-height: 1.02;
+  letter-spacing: -0.022em;
+  text-wrap: balance;
 }
 
-.subLayer {
-  padding: 4px 11px;
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  padding: 5px 12px;
   border: 1px solid var(--line);
   border-radius: 999px;
   font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 0.14em;
-  color: var(--domain);
-}
-
-.description {
-  font-size: 15px;
-  line-height: 1.75;
+  text-transform: uppercase;
   color: var(--ink-soft);
 }
 
+.subLayer {
+  border-color: color-mix(in srgb, var(--domain) 46%, transparent);
+  color: color-mix(in srgb, var(--domain) 68%, #15171b);
+}
+
+.description {
+  font-size: clamp(15px, 1.35vw, 18px);
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+.portrait {
+  justify-self: end;
+  width: 100%;
+  max-width: 300px;
+}
+
+/* ---------- product groups ---------- */
 .group {
   display: grid;
-  gap: 18px;
+  gap: 4px;
 }
 
 .groupTitle {
@@ -74,19 +129,21 @@
   font-weight: 400;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--domain);
+  color: var(--ink-soft);
 }
 
-.grid {
-  display: grid;
-  gap: 14px;
-  grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
+.groupTitle::after {
+  content: "";
+  display: block;
+  margin-top: 10px;
+  border-top: 1px solid var(--line);
 }
 
+/* ---------- back ---------- */
 .back {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   justify-self: start;
   font-family: var(--font-mono);
   font-size: 10px;
@@ -99,4 +156,16 @@
 .back:hover,
 .back:focus-visible {
   color: var(--ink);
+}
+
+@media (max-width: 1023px) {
+  .header {
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(24px, 5vh, 40px);
+  }
+
+  .portrait {
+    justify-self: stretch;
+    max-width: 340px;
+  }
 }

@@ -31,6 +31,28 @@
   --gutter: clamp(16px, 4vw, 48px);
 }
 
+/*
+ * Light surfaces — the pages outside the space journey. Redefining the same tokens
+ * means every shared component (SiteNav, StatusTag, the deck) inverts without
+ * knowing a light theme exists.
+ */
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #f4f4f2;
+  --ink: #15171b;
+  --ink-soft: rgba(21, 23, 27, 0.6);
+  --accent: #a4562c;
+  --accent-light: #c2794c;
+
+  --line: rgba(21, 23, 27, 0.12);
+  --line-strong: rgba(21, 23, 27, 0.34);
+
+  /* The lifted card reads against paper, not against space. */
+  --card-rest: 0 14px 34px -20px rgba(18, 20, 26, 0.5);
+  --card-lift: 0 42px 70px -30px rgba(18, 20, 26, 0.55);
+}
+
 /* ==========================================================
    Base
    ========================================================== */

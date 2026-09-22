@@ -134,3 +134,11 @@ export function groupedProducts(domain: Domain): readonly { name?: string; produ
     products: owned.filter((product) => product.group === name),
   }));
 }
+
+/**
+ * Every domain and product has a portrait photo under `public/photos`, named after
+ * its slug. Adding a product means adding `public/photos/<slug>.jpg` alongside it.
+ */
+export function photoFor(slug: string): string {
+  return `/photos/${slug}.jpg`;
+}
