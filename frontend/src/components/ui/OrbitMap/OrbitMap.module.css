@@ -3,8 +3,12 @@
   width: 100%;
 }
 
-/* The orbit is a desktop affordance; MobileDomainList takes over below this. */
-@media (max-width: 767px) {
+/*
+ * The orbit needs both width and height: the stage alone is 380px at its
+ * smallest, so a landscape phone is wide enough and nowhere near tall enough.
+ * MobileDomainList takes over in either case.
+ */
+@media (max-width: 767px), (max-height: 640px) {
   .root {
     display: none;
   }

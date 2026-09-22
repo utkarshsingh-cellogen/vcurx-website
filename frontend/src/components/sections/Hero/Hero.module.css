@@ -66,11 +66,16 @@
   .destination { transform: none; }
 }
 
+/*
+ * Lifts and fades away as the planet approaches. Transform and opacity only:
+ * a scroll-driven blur re-rasterises this layer — which holds the whole wordmark
+ * at min(27vw, 40vh) — on every scroll frame, and the element is already
+ * invisible by --progress 0.24, so the blur was never really seen.
+ */
 .scrollAway {
   opacity: calc(1 - var(--progress) * 4.2);
   transform: translateY(calc(var(--progress) * -18vh)) scale(calc(1 - var(--progress) * 0.12));
-  filter: blur(calc(var(--progress) * 10px));
-  will-change: transform, opacity, filter;
+  will-change: transform, opacity;
 }
 
 /* Thin animated line inviting a scroll */

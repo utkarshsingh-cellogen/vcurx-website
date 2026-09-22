@@ -10,6 +10,19 @@ import styles from "./OrbitMap.module.css";
 /** Radii of the product ellipse, as a fraction of the stage box. */
 const RX = 0.33;
 const RY = 0.34;
+/**
+ * Room a moon needs outside its dot for the longest product name, which is
+ * 20 mono characters. Labels never wrap, so on a narrow stage the ellipse has
+ * to pull in or the outermost names run off the edge.
+ */
+const LABEL_ROOM = 170;
+const MIN_RX = 0.16;
+
+/** The widest horizontal radius that still leaves every label on the stage. */
+function horizontalRadius(width: number): number {
+  if (width <= 0) return RX;
+  return Math.max(MIN_RX, Math.min(RX, 0.5 - LABEL_ROOM / width));
+}
 /** One arc per group, mirrored about the vertical axis, each running top to bottom. */
 const ARCS = [
   { start: 212, end: 148 },
@@ -30,9 +43,9 @@ function columnsFor(domain: Domain): readonly [Column, Column] {
 }
 
 /** A point on the ellipse, plus the spoke that reaches it from the core. */
-function place(degrees: number, width: number, height: number) {
+function place(degrees: number, width: number, height: number, rx: number) {
   const angle = (degrees * Math.PI) / 180;
-  const dx = width * RX * Math.cos(angle);
+  const dx = width * rx * Math.cos(angle);
   const dy = height * RY * Math.sin(angle);
   return {
     x: width / 2 + dx,
@@ -64,6 +77,7 @@ export function DomainFocus({ domain, backRef, onBack }: DomainFocusProps) {
   }, []);
 
   const columns = columnsFor(domain);
+  const rx = horizontalRadius(size.width);
   const count = productsIn(domain.slug).length;
 
   return (
@@ -81,7 +95,7 @@ export function DomainFocus({ domain, backRef, onBack }: DomainFocusProps) {
 
       {columns.map((column, side) => {
         const arc = ARCS[side];
-        const label = column.name ? place(arc.start - LABEL_LEAD, size.width, size.height) : null;
+        const label = column.name ? place(arc.start - LABEL_LEAD, size.width, size.height, rx) : null;
 
         return (
           <Fragment key={column.name ?? `side-${side}`}>
@@ -97,7 +111,7 @@ export function DomainFocus({ domain, backRef, onBack }: DomainFocusProps) {
             {column.products.map((product, i) => {
               const steps = column.products.length - 1;
               const t = steps > 0 ? i / steps : 0.5;
-              const point = place(arc.start + (arc.end - arc.start) * t, size.width, size.height);
+              const point = place(arc.start + (arc.end - arc.start) * t, size.width, size.height, rx);
               const delay = 0.16 + side * 0.04 + i * 0.05;
 
               return (

@@ -15,8 +15,8 @@
   border-radius: 18px;
   background: rgba(20, 20, 22, 0.55);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   /* Neighbours fade out toward the edges, as if the list continues */
   mask-image: linear-gradient(90deg, transparent 0, #000 22%, #000 78%, transparent 100%);
 }
@@ -148,6 +148,19 @@ a.arrow:hover {
   }
 
   .reveal .disabled { opacity: 0.3; }
+}
+
+/*
+ * Phones pay the most for a live backdrop blur, and the star field behind this
+ * pill animates constantly, so the blur can never be cached. A slightly more
+ * opaque panel reads the same and costs nothing.
+ */
+@media (max-width: 767px) {
+  .pill {
+    background: rgba(18, 18, 20, 0.88);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 }
 
 @media (max-width: 480px) {

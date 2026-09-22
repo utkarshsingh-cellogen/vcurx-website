@@ -270,6 +270,7 @@
 }
 
 .leafName {
+  min-width: 0;
   font-family: var(--font-mono);
   font-size: 12px;
   letter-spacing: 0;
@@ -294,9 +295,12 @@
 }
 
 /* ==========================================================
-   Small screens: the branches stack
+   Narrow screens: the branches stack
+
+   Four columns only once each can hold a product name beside its status
+   tag — the tag reserves its width even while it is transparent.
    ========================================================== */
-@media (max-width: 860px) {
+@media (max-width: 1079px) {
   .bus {
     display: none;
   }
