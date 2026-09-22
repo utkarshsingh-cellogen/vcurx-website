@@ -1,0 +1,80 @@
+/*
+ * The deck owns position — stacking, lift, push, scale — so every value that moves a
+ * card lives in one file. DeckCard.module.css owns how a card *looks* in each state.
+ *
+ * Every override here is written as `.deck > [data-state…]` rather than `.deck > *`.
+ * Both match, but only the attribute form out-specifies DeckCard's own `.card` rule,
+ * and the two live in different stylesheets whose order is not guaranteed.
+ */
+.deck {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0 26px;
+}
+
+.deck > [data-state] {
+  /* Shrinkable, so a deck of five still fits the column a deck of two floats in. */
+  flex: 0 1 clamp(170px, min(20.5vw, 32vh), 268px);
+  min-width: 0;
+  width: auto;
+}
+
+/* A touch of overlap, so the cards read as one deck rather than a row of tiles. */
+.deck > [data-state] + [data-state] {
+  margin-left: clamp(-15px, -0.85vw, -7px);
+}
+
+.deck > :nth-child(1) { z-index: 1; }
+.deck > :nth-child(2) { z-index: 2; }
+.deck > :nth-child(3) { z-index: 3; }
+.deck > :nth-child(4) { z-index: 4; }
+.deck > :nth-child(5) { z-index: 5; }
+.deck > :nth-child(n + 6) { z-index: 6; }
+
+/* Must follow the per-card rules above: same specificity, decided by source order. */
+.deck > [data-state="active"] {
+  z-index: 7;
+  --lift: -24px;
+  --scale: 1.07;
+}
+
+.deck > [data-state="recede"] {
+  --push: 24px;
+  --scale: 0.93;
+}
+
+/*
+ * Narrow and short viewports cannot hold a fan of overlapping cards. `grid` lays the
+ * same cards out flat with no choreography; `hide` steps aside for a caller that has
+ * its own small-screen layout.
+ */
+@media (max-width: 1023px), (max-height: 640px) {
+  .deck[data-narrow="grid"] {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(188px, 100%), 1fr));
+    gap: clamp(14px, 2.4vw, 22px);
+    padding: 20px 0 0;
+  }
+
+  .deck[data-narrow="grid"] > [data-state] {
+    width: 100%;
+    margin-left: 0;
+    --lean: 0;
+    --lift: 0px;
+    --push: 0px;
+    --scale: 1;
+  }
+
+  .deck[data-narrow="hide"] {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deck > [data-state] {
+    --lift: 0px;
+    --push: 0px;
+    --scale: 1;
+  }
+}

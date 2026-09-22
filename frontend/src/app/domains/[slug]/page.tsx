@@ -2,10 +2,17 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { CSSProperties } from "react";
-import { domains, getDomain, groupedProducts, productsIn } from "@/data/products";
-import { Starfield } from "@/components/effects/Starfield";
+import {
+  domains,
+  getDomain,
+  groupedProducts,
+  photoFor,
+  productsIn,
+  statusLabels,
+} from "@/data/products";
+import { Deck, type DeckItem } from "@/components/ui/Deck";
+import { DeckCard } from "@/components/ui/DeckCard";
 import { Icon } from "@/components/ui/Icon";
-import { ProductCard } from "@/components/ui/ProductCard";
 import { SiteNav } from "@/components/ui/SiteNav";
 import styles from "./page.module.css";
 
@@ -29,35 +36,83 @@ export default async function DomainPage({ params }: PageProps<"/domains/[slug]"
   const domain = getDomain(slug);
   if (!domain) notFound();
 
+  const count = productsIn(domain.slug).length;
   const groups = groupedProducts(domain);
 
   return (
-    <main className={styles.page} style={{ "--domain": `var(${domain.accent})` } as CSSProperties}>
-      <Starfield />
-      <SiteNav />
+    <main
+      className={styles.page}
+      data-theme="light"
+      style={{ "--domain": `var(${domain.accent})` } as CSSProperties}
+    >
+      <div className={styles.nav}>
+        <SiteNav />
+      </div>
 
       <div className={styles.body}>
         <header className={styles.header}>
-          <p className={styles.eyebrow}>
-            <Link href="/#domains" className={styles.crumb}>Domain Intelligence</Link>
-            <span aria-hidden="true">/</span>
-            <span>{domain.name}</span>
-          </p>
-          <h1 className={styles.title}>{domain.name}</h1>
-          {domain.subLayer && <span className={styles.subLayer}>{domain.subLayer}</span>}
-          <p className={styles.description}>{domain.description}</p>
+          <div className={styles.intro}>
+            <p className={styles.eyebrow}>
+              <Link href="/#domains" className={styles.crumb}>Domain Intelligence</Link>
+              <span aria-hidden="true">/</span>
+              <span>{domain.name}</span>
+            </p>
+
+            <h1 className={styles.title}>{domain.name}</h1>
+
+            <p className={styles.chips}>
+              {domain.subLayer && (
+                <span className={`${styles.chip} ${styles.subLayer}`}>{domain.subLayer}</span>
+              )}
+              <span className={styles.chip}>
+                {count} {count === 1 ? "product" : "products"}
+              </span>
+            </p>
+
+            <p className={styles.description}>{domain.description}</p>
+          </div>
+
+          <div className={styles.portrait}>
+            <DeckCard
+              size="hero"
+              image={photoFor(domain.slug)}
+              priority
+              sizes="(max-width: 1023px) 90vw, 300px"
+              badge={domain.subLayer ?? "Core domain"}
+              name={domain.name}
+              handle={`@${domain.slug}`}
+              meta={`${count} ${count === 1 ? "product" : "products"}`}
+              href="#products"
+              cta="Products"
+              accent={domain.accent}
+            />
+          </div>
         </header>
 
-        {groups.map((group, i) => (
-          <section key={group.name ?? `group-${i}`} className={styles.group}>
-            {group.name && <h2 className={styles.groupTitle}>{group.name}</h2>}
-            <div className={styles.grid}>
-              {group.products.map((product) => (
-                <ProductCard key={product.slug} product={product} />
-              ))}
-            </div>
-          </section>
-        ))}
+        {groups.map((group, i) => {
+          const items: readonly DeckItem[] = group.products.map((product) => ({
+            key: product.slug,
+            image: photoFor(product.slug),
+            sizes: "(max-width: 1023px) 45vw, 270px",
+            badge: statusLabels[product.status],
+            name: product.name,
+            handle: `@${product.slug}`,
+            meta: product.group ?? domain.shortName ?? domain.name,
+            href: `/products/${product.slug}`,
+            accent: domain.accent,
+          }));
+
+          return (
+            <section
+              key={group.name ?? `group-${i}`}
+              id={i === 0 ? "products" : undefined}
+              className={styles.group}
+            >
+              {group.name && <h2 className={styles.groupTitle}>{group.name}</h2>}
+              <Deck items={items} />
+            </section>
+          );
+        })}
 
         <Link href="/#domains" className={styles.back}>
           <Icon name="chevronLeft" size={14} />

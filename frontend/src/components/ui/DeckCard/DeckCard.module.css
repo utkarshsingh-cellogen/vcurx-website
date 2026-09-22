@@ -1,0 +1,305 @@
+.card {
+  /*
+   * `--lean` is the one knob a Deck turns to flatten a card: it scales away the rest
+   * tilt and offset that React sets inline. Because only stylesheets ever set it,
+   * the raised and reduced-motion rules can win over those inline values.
+   */
+  --lean: 1;
+  --tilt: 0deg;
+  --rest-y: 0px;
+  --lift: 0px;
+  --push: 0px;
+  --scale: 1;
+  --dir: 0;
+  --card-rest: 0 18px 44px -26px rgba(0, 0, 0, 0.95);
+  --card-lift: 0 46px 90px -30px rgba(0, 0, 0, 0.95);
+
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  width: 100%;
+  aspect-ratio: 25 / 36;
+  border-radius: clamp(18px, 1.5vw, 24px);
+  overflow: hidden;
+  background: #05070c;
+  box-shadow: var(--card-rest), 0 0 0 1px rgba(247, 243, 236, 0.07) inset;
+  transform: translate3d(
+      calc(var(--dir) * var(--push)),
+      calc(var(--rest-y) * var(--lean) + var(--lift)),
+      0
+    )
+    rotate(calc(var(--tilt) * var(--lean))) scale(var(--scale));
+  transition:
+    transform 620ms var(--ease-out),
+    box-shadow 620ms var(--ease-out),
+    filter 620ms var(--ease-out);
+  will-change: transform;
+}
+
+/*
+ * The frosted foot has no hard edge in the reference: the blur reaches well above the
+ * content and is masked out as it rises, so the image's colour smears into the frost.
+ * It lives on the card, not the footer, so the footer stays an unpositioned grid row
+ * and the call to action can stretch its hit area across the whole card.
+ */
+.card::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 1;
+  height: 34%;
+  backdrop-filter: blur(24px) saturate(180%) brightness(1.05);
+  /* A faint veil so the bar still reads over a photograph that is dark at the foot. */
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.015) 58%, transparent);
+  -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(1.05);
+  mask-image: linear-gradient(to top, #000 0 52%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to top, #000 0 52%, transparent 100%);
+  pointer-events: none;
+}
+
+.card[data-state="active"] {
+  --lean: 0;
+  box-shadow:
+    var(--card-lift),
+    0 0 46px -18px color-mix(in srgb, var(--domain) 50%, transparent),
+    0 0 0 1px rgba(247, 243, 236, 0.16) inset;
+}
+
+.card[data-state="recede"] {
+  filter: brightness(0.62) saturate(0.72);
+}
+
+/* The hero card on a product page stands alone, so it is bigger and calmer. */
+.card[data-size="hero"] {
+  aspect-ratio: 25 / 34;
+  border-radius: clamp(22px, 2vw, 30px);
+  box-shadow: var(--card-lift), 0 0 0 1px rgba(247, 243, 236, 0.1) inset;
+}
+
+/* ---------- artwork ---------- */
+.art {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.01);
+  transition: transform 760ms var(--ease-out);
+}
+
+.art > :global(svg) {
+  width: 100%;
+  height: 100%;
+}
+
+.card[data-state="active"] .art {
+  transform: scale(1.06);
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  /* Darkens both ends: the badge and name sit on one, the frosted foot on the other. */
+  background: linear-gradient(
+    to bottom,
+    rgba(5, 7, 12, 0.66),
+    transparent 38%,
+    transparent 54%,
+    rgba(5, 7, 12, 0.85)
+  );
+  pointer-events: none;
+}
+
+/* ---------- badge and name ---------- */
+.head {
+  /* Placed explicitly: the absolutely-positioned art is out of flow, so auto
+     placement would drop the foot into the 1fr spacer instead of the last row. */
+  grid-row: 1;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+  padding: 16px 12px 0;
+  text-align: center;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px 4px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.24);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: rgba(255, 255, 255, 0.96);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.name {
+  font-size: clamp(16px, 1.45vw, 21px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: #fff;
+  text-shadow: 0 2px 18px rgba(5, 7, 12, 0.55);
+  text-wrap: balance;
+}
+
+.card[data-size="hero"] .head {
+  gap: 10px;
+  padding: 26px 20px 0;
+}
+
+.card[data-size="hero"] .badge {
+  padding: 6px 14px 6px 11px;
+  font-size: 12px;
+}
+
+.card[data-size="hero"] .name {
+  font-size: clamp(24px, 2.6vw, 34px);
+}
+
+/* ---------- frosted foot ---------- */
+.foot {
+  grid-row: 3;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 11px;
+}
+
+.avatar {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
+  background: radial-gradient(
+    circle at 32% 26%,
+    color-mix(in srgb, var(--domain) 75%, #ffffff),
+    color-mix(in srgb, var(--domain) 60%, #05070c)
+  );
+}
+
+.meta {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.handle {
+  overflow: hidden;
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  text-shadow: 0 1px 6px rgba(5, 7, 12, 0.55);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detail {
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 9.5px;
+  letter-spacing: 0.005em;
+  text-shadow: 0 1px 6px rgba(5, 7, 12, 0.55);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cta {
+  flex: none;
+  margin-left: auto;
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: #fff;
+  color: #0b0d12;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  box-shadow: 0 2px 12px rgba(5, 7, 12, 0.35);
+  transition: transform 300ms var(--ease-out);
+}
+
+.card[data-size="hero"] .foot {
+  gap: 12px;
+  padding: 20px 18px;
+}
+
+.card[data-size="hero"] .avatar {
+  width: 36px;
+  height: 36px;
+}
+
+.card[data-size="hero"] .handle {
+  font-size: 14px;
+}
+
+.card[data-size="hero"] .detail {
+  font-size: 12px;
+}
+
+.card[data-size="hero"] .cta {
+  padding: 10px 18px;
+  font-size: 13px;
+}
+
+/* The pill is what you see; the whole card is what you click. */
+.cta::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: clamp(18px, 1.5vw, 24px);
+}
+
+.card[data-size="hero"] .cta::after {
+  border-radius: clamp(22px, 2vw, 30px);
+}
+
+.card[data-state="active"] .cta {
+  transform: scale(1.04);
+}
+
+.cta:focus-visible {
+  outline: none;
+}
+
+.cta:focus-visible::after {
+  outline: 2px solid var(--accent);
+  outline-offset: -4px;
+}
+
+/* Names the link for screen readers without widening the pill. */
+.ctaLabel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Last, so it wins over the raised rule above. */
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .card[data-state] {
+    --lean: 1;
+    --lift: 0px;
+    --push: 0px;
+    --scale: 1;
+  }
+
+  .card[data-state="active"] .art,
+  .card[data-state="active"] .cta {
+    transform: none;
+  }
+}
