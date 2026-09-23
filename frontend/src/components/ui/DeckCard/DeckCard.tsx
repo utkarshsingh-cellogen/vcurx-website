@@ -9,13 +9,7 @@ export type DeckCardProps = {
   image?: string;
   /** Drawn artwork, for cards with no photograph. */
   art?: ReactNode;
-  /** The small frosted pill above the name. */
-  badge: string;
   name: string;
-  /** Bold first line of the frosted foot, e.g. `@research`. */
-  handle: string;
-  /** Quieter second line of the foot. */
-  meta: string;
   href: string;
   cta?: string;
   /** A `--domain-*` custom property name, without `var()`. */
@@ -36,17 +30,14 @@ export type DeckCardProps = {
 };
 
 /**
- * The card the whole site is built from: badge and name over a portrait image, and a
- * frosted bar at the foot carrying a handle, a line of detail and the call to action.
+ * The card the whole site is built from: a name over a portrait image, and a
+ * smoked bar at the foot carrying nothing but the call to action.
  * It only dresses the state it is handed — a Deck decides which card is raised.
  */
 export function DeckCard({
   image,
   art,
-  badge,
   name,
-  handle,
-  meta,
   href,
   cta = "Explore",
   accent,
@@ -93,22 +84,14 @@ export function DeckCard({
       <span className={styles.scrim} aria-hidden="true" />
 
       <header className={styles.head}>
-        <span className={styles.badge}>
-          <Icon name="spark" size={11} />
-          {badge}
-        </span>
         <h3 className={styles.name}>{name}</h3>
       </header>
 
       <footer className={styles.foot}>
-        <span className={styles.avatar} aria-hidden="true" />
-        <span className={styles.meta}>
-          <span className={styles.handle}>{handle}</span>
-          <span className={styles.detail}>{meta}</span>
-        </span>
         <Link href={href} className={styles.cta}>
           {cta}
           <span className={styles.ctaLabel}> {name}</span>
+          <Icon name="arrowUpRight" size={13} className={styles.ctaIcon} aria-hidden="true" />
         </Link>
       </footer>
     </article>

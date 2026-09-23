@@ -8,8 +8,8 @@ import {
   groupedProducts,
   photoFor,
   productsIn,
-  statusLabels,
 } from "@/data/products";
+import { DeepSpace } from "@/components/effects/DeepSpace";
 import { Deck, type DeckItem } from "@/components/ui/Deck";
 import { DeckCard } from "@/components/ui/DeckCard";
 import { Icon } from "@/components/ui/Icon";
@@ -42,9 +42,11 @@ export default async function DomainPage({ params }: PageProps<"/domains/[slug]"
   return (
     <main
       className={styles.page}
-      data-theme="light"
+      data-theme="surface"
       style={{ "--domain": `var(${domain.accent})` } as CSSProperties}
     >
+      <DeepSpace className={styles.sky} />
+
       <div className={styles.nav}>
         <SiteNav />
       </div>
@@ -52,12 +54,6 @@ export default async function DomainPage({ params }: PageProps<"/domains/[slug]"
       <div className={styles.body}>
         <header className={styles.header}>
           <div className={styles.intro}>
-            <p className={styles.eyebrow}>
-              <Link href="/#domains" className={styles.crumb}>Domain Intelligence</Link>
-              <span aria-hidden="true">/</span>
-              <span>{domain.name}</span>
-            </p>
-
             <h1 className={styles.title}>{domain.name}</h1>
 
             <p className={styles.chips}>
@@ -69,7 +65,7 @@ export default async function DomainPage({ params }: PageProps<"/domains/[slug]"
               </span>
             </p>
 
-            <p className={styles.description}>{domain.description}</p>
+            {domain.description && <p className={styles.description}>{domain.description}</p>}
           </div>
 
           <div className={styles.portrait}>
@@ -78,10 +74,7 @@ export default async function DomainPage({ params }: PageProps<"/domains/[slug]"
               image={photoFor(domain.slug)}
               priority
               sizes="(max-width: 1023px) 90vw, 300px"
-              badge={domain.subLayer ?? "Core domain"}
               name={domain.name}
-              handle={`@${domain.slug}`}
-              meta={`${count} ${count === 1 ? "product" : "products"}`}
               href="#products"
               cta="Products"
               accent={domain.accent}
@@ -94,10 +87,7 @@ export default async function DomainPage({ params }: PageProps<"/domains/[slug]"
             key: product.slug,
             image: photoFor(product.slug),
             sizes: "(max-width: 1023px) 45vw, 270px",
-            badge: statusLabels[product.status],
             name: product.name,
-            handle: `@${product.slug}`,
-            meta: product.group ?? domain.shortName ?? domain.name,
             href: `/products/${product.slug}`,
             accent: domain.accent,
           }));

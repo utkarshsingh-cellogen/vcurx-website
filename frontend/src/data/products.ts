@@ -19,8 +19,8 @@ export type Domain = {
   subLayer?: string;
   /** Ordered — the first group renders on the left of a focused orbit, the second on the right. */
   groups: readonly string[];
-  /** TODO: replace with real copy. */
-  description: string;
+  /** A line or two on what the domain covers. Omitted until the copy exists. */
+  description?: string;
   /** Design token from globals.css, without the `var()`. */
   accent: `--domain-${DomainSlug}`;
 };
@@ -30,12 +30,12 @@ export type Product = {
   slug: string;
   domain: DomainSlug;
   group?: string;
-  /** TODO: replace with real copy. */
-  oneLiner: string;
+  /** One line on what the product does. Omitted until the copy exists. */
+  oneLiner?: string;
   status: ProductStatus;
-  /** TODO: replace with real copy. */
+  /** The problem it exists to solve. */
   problem?: string;
-  /** TODO: replace with real copy. Exactly three steps. */
+  /** Exactly three steps, or none at all. */
   steps?: readonly [string, string, string];
 };
 
@@ -45,7 +45,6 @@ export const domains: readonly Domain[] = [
     name: "Therapeutics Intelligence",
     shortName: "Therapeutics",
     groups: [],
-    description: "TODO — what Therapeutics Intelligence covers and who it is for.",
     accent: "--domain-therapeutics",
   },
   {
@@ -53,7 +52,6 @@ export const domains: readonly Domain[] = [
     name: "Research",
     subLayer: "Bi-Sciterse",
     groups: ["Design", "Discovery"],
-    description: "TODO — what Research covers and who it is for.",
     accent: "--domain-research",
   },
   {
@@ -61,50 +59,47 @@ export const domains: readonly Domain[] = [
     name: "Clinical",
     subLayer: "AI-Doctor",
     groups: ["Patient Care", "Regulatory"],
-    description: "TODO — what Clinical covers and who it is for.",
     accent: "--domain-clinical",
   },
   {
     slug: "diagnostic",
     name: "Diagnostic",
     groups: [],
-    description: "TODO — what Diagnostic covers and who it is for.",
     accent: "--domain-diagnostic",
   },
 ];
 
-const TODO_LINE = "TODO — one line on what this does.";
 
 export const products: readonly Product[] = [
   // Therapeutics Intelligence
-  { name: "CAR-T AI Agent", slug: "car-t-ai-agent", domain: "therapeutics", oneLiner: TODO_LINE, status: "in-lab" },
-  { name: "GenAI PY Agent", slug: "genai-py-agent", domain: "therapeutics", oneLiner: TODO_LINE, status: "in-lab" },
+  { name: "CAR-T AI Agent", slug: "car-t-ai-agent", domain: "therapeutics", status: "in-lab" },
+  { name: "GenAI PY Agent", slug: "genai-py-agent", domain: "therapeutics", status: "in-lab" },
 
   // Research › Bi-Sciterse › Design
-  { name: "HelixForge", slug: "helixforge", domain: "research", group: "Design", oneLiner: TODO_LINE, status: "in-lab" },
-  { name: "PromoterForge", slug: "promoterforge", domain: "research", group: "Design", oneLiner: TODO_LINE, status: "in-lab" },
-  { name: "CelAbGen", slug: "celabgen", domain: "research", group: "Design", oneLiner: TODO_LINE, status: "in-lab" },
-  { name: "Cimmexa", slug: "cimmexa", domain: "research", group: "Design", oneLiner: TODO_LINE, status: "in-lab" },
-  { name: "Celnfo", slug: "celnfo", domain: "research", group: "Design", oneLiner: TODO_LINE, status: "in-lab" },
+  { name: "HelixForge", slug: "helixforge", domain: "research", group: "Design", status: "in-lab" },
+  { name: "PromoterForge", slug: "promoterforge", domain: "research", group: "Design", status: "in-lab" },
+  { name: "CelAbGen", slug: "celabgen", domain: "research", group: "Design", status: "in-lab" },
+  { name: "Cimmexa", slug: "cimmexa", domain: "research", group: "Design", status: "in-lab" },
+  { name: "Celnfo", slug: "celnfo", domain: "research", group: "Design", status: "in-lab" },
 
   // Research › Bi-Sciterse › Discovery
-  { name: "Target Explorer", slug: "target-explorer", domain: "research", group: "Discovery", oneLiner: TODO_LINE, status: "in-lab" },
-  { name: "Antigen Discovery", slug: "antigen-discovery", domain: "research", group: "Discovery", oneLiner: TODO_LINE, status: "in-lab" },
-  { name: "Single-cell Analysis", slug: "single-cell-analysis", domain: "research", group: "Discovery", oneLiner: TODO_LINE, status: "in-lab" },
-  { name: "Spatiomic AI", slug: "spatiomic-ai", domain: "research", group: "Discovery", oneLiner: TODO_LINE, status: "in-lab" },
-  { name: "Virtual Cell", slug: "virtual-cell", domain: "research", group: "Discovery", oneLiner: TODO_LINE, status: "in-lab" },
+  { name: "Target Explorer", slug: "target-explorer", domain: "research", group: "Discovery", status: "in-lab" },
+  { name: "Antigen Discovery", slug: "antigen-discovery", domain: "research", group: "Discovery", status: "in-lab" },
+  { name: "Single-cell Analysis", slug: "single-cell-analysis", domain: "research", group: "Discovery", status: "in-lab" },
+  { name: "Spatiomic AI", slug: "spatiomic-ai", domain: "research", group: "Discovery", status: "in-lab" },
+  { name: "Virtual Cell", slug: "virtual-cell", domain: "research", group: "Discovery", status: "in-lab" },
 
   // Clinical › AI-Doctor › Patient Care
-  { name: "Response Prediction", slug: "response-prediction", domain: "clinical", group: "Patient Care", oneLiner: TODO_LINE, status: "in-lab" },
-  { name: "Toxicity Prediction", slug: "toxicity-prediction", domain: "clinical", group: "Patient Care", oneLiner: TODO_LINE, status: "in-lab" },
-  { name: "Safety Monitoring", slug: "safety-monitoring", domain: "clinical", group: "Patient Care", oneLiner: TODO_LINE, status: "in-lab" },
-  { name: "Perturbation Analysis", slug: "perturbation-analysis", domain: "clinical", group: "Patient Care", oneLiner: TODO_LINE, status: "in-lab" },
+  { name: "Response Prediction", slug: "response-prediction", domain: "clinical", group: "Patient Care", status: "in-lab" },
+  { name: "Toxicity Prediction", slug: "toxicity-prediction", domain: "clinical", group: "Patient Care", status: "in-lab" },
+  { name: "Safety Monitoring", slug: "safety-monitoring", domain: "clinical", group: "Patient Care", status: "in-lab" },
+  { name: "Perturbation Analysis", slug: "perturbation-analysis", domain: "clinical", group: "Patient Care", status: "in-lab" },
 
   // Clinical › AI-Doctor › Regulatory
-  { name: "CiRA AI", slug: "cira-ai", domain: "clinical", group: "Regulatory", oneLiner: TODO_LINE, status: "in-lab" },
+  { name: "CiRA AI", slug: "cira-ai", domain: "clinical", group: "Regulatory", status: "in-lab" },
 
   // Diagnostic
-  { name: "OralPatho", slug: "oralpatho", domain: "diagnostic", oneLiner: TODO_LINE, status: "in-lab" },
+  { name: "OralPatho", slug: "oralpatho", domain: "diagnostic", status: "in-lab" },
 ];
 
 export const statusLabels: Record<ProductStatus, string> = {

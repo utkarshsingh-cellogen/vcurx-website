@@ -16,7 +16,7 @@ export function ProductCard({ product }: ProductCardProps) {
         <span className={styles.name}>{product.name}</span>
         <Icon name="arrowUpRight" size={14} className={styles.arrow} />
       </span>
-      <span className={styles.line}>{product.oneLiner}</span>
+      {product.oneLiner && <span className={styles.line}>{product.oneLiner}</span>}
       <StatusTag status={product.status} className={styles.status} />
     </Link>
   );
