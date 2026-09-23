@@ -32,25 +32,23 @@
 }
 
 /*
- * Light surfaces — the pages outside the space journey. Redefining the same tokens
- * means every shared component (SiteNav, StatusTag, the deck) inverts without
- * knowing a light theme exists.
+ * Deep-space surfaces — the pages outside the journey. They keep the sky behind them,
+ * so the tokens only have to soften what the home page sets: a hair off pure black so
+ * the galaxy has something to sit on, and quieter hairlines than the orbit needs.
+ * Redefining the same tokens means every shared component (SiteNav, StatusTag, the
+ * deck) shifts without knowing a second surface exists.
  */
-[data-theme="light"] {
-  color-scheme: light;
+[data-theme="surface"] {
+  --bg: #05070b;
+  --ink: #f4f1ea;
+  --ink-soft: rgba(236, 232, 226, 0.6);
 
-  --bg: #f4f4f2;
-  --ink: #15171b;
-  --ink-soft: rgba(21, 23, 27, 0.6);
-  --accent: #a4562c;
-  --accent-light: #c2794c;
+  --line: rgba(247, 243, 236, 0.13);
+  --line-strong: rgba(247, 243, 236, 0.36);
 
-  --line: rgba(21, 23, 27, 0.12);
-  --line-strong: rgba(21, 23, 27, 0.34);
-
-  /* The lifted card reads against paper, not against space. */
-  --card-rest: 0 14px 34px -20px rgba(18, 20, 26, 0.5);
-  --card-lift: 0 42px 70px -30px rgba(18, 20, 26, 0.55);
+  /* Deeper than on the orbit: these cards sit closer to the reader. */
+  --card-rest: 0 16px 40px -24px rgba(0, 0, 0, 0.9);
+  --card-lift: 0 44px 84px -30px rgba(0, 0, 0, 0.95);
 }
 
 /* ==========================================================
