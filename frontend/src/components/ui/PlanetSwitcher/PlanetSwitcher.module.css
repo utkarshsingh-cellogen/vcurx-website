@@ -55,27 +55,33 @@ a.item:hover {
   cursor: default;
 }
 
+/* A button now: it steps the pill along rather than going anywhere. */
 .arrow {
   display: grid;
   place-items: center;
   width: 34px;
   height: 34px;
+  padding: 0;
   border-radius: 50%;
   color: #fff;
   border: 1px solid rgba(255, 255, 255, 0.2);
+  background: none;
+  cursor: pointer;
   transition:
     background-color 0.3s var(--ease-out),
     border-color 0.3s var(--ease-out);
 }
 
-a.arrow:hover {
+.arrow:enabled:hover {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.4);
 }
 
+/* Nothing to step to past either end of the list. */
 .disabled {
   --arrow-opacity: 0.3;
   opacity: 0.3;
+  cursor: default;
 }
 
 /* Expand the track from its centre; reveal icons, arrows and names in order. */

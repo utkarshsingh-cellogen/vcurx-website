@@ -1,5 +1,7 @@
+"use client";
+
 import Link from "next/link";
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import { sections, type SectionId } from "@/config/content";
 import { Icon } from "@/components/ui/Icon";
 import styles from "./PlanetSwitcher.module.css";
@@ -12,18 +14,21 @@ type PlanetSwitcherProps = {
   delay?: number;
 };
 
-/** Pill of domains with the active one centred; arrows step to the neighbouring domain. */
+/**
+ * Pill of domains with one centred and its neighbours either side. The arrows step
+ * the pill along without leaving the page; opening a domain is what its name is for.
+ */
 export function PlanetSwitcher({ active, className, reveal = false, playing = false, delay = 0 }: PlanetSwitcherProps) {
-  const index = sections.findIndex((section) => section.id === active);
-  const prev = sections[index - 1];
-  const next = sections[index + 1];
-  // Show the active domain flanked by its neighbours; the rest fade out past the edges
-  const visible = [prev, sections[index], next];
+  // Starts on the domain this section belongs to; the arrows move it from there.
+  const [centre, setCentre] = useState(() => Math.max(0, sections.findIndex((section) => section.id === active)));
+  const step = (by: number) => setCentre((i) => Math.min(Math.max(i + by, 0), sections.length - 1));
+  // The centred domain flanked by its neighbours; the rest fade out past the edges
+  const visible = [sections[centre - 1], sections[centre], sections[centre + 1]];
 
   return (
     <nav className={`${styles.switcher} ${reveal ? styles.reveal : ""} ${playing ? styles.playing : ""} ${className ?? ""}`}
       style={{ "--selector-delay": `${delay}s` } as CSSProperties} aria-label="Domains">
-      <Arrow section={prev} direction="prev" />
+      <Arrow direction="prev" to={sections[centre - 1]} onClick={() => step(-1)} />
       <ul className={styles.pill}>
         {visible.map((section, i) =>
           section ? (
@@ -32,7 +37,7 @@ export function PlanetSwitcher({ active, className, reveal = false, playing = fa
                 <Link
                   href={section.href}
                   className={`${styles.item} ${i === 1 ? styles.active : ""}`}
-                  aria-current={i === 1 ? "true" : undefined}
+                  aria-current={section.id === active ? "true" : undefined}
                 >
                   {i === 1 && <Icon name="planet" size={16} />}
                   <span className={styles.itemLabel}>{section.name}</span>
@@ -48,29 +53,33 @@ export function PlanetSwitcher({ active, className, reveal = false, playing = fa
           ),
         )}
       </ul>
-      <Arrow section={next} direction="next" />
+      <Arrow direction="next" to={sections[centre + 1]} onClick={() => step(1)} />
     </nav>
   );
 }
 
+/**
+ * A button, not a link: it slides the pill along rather than going anywhere. There is
+ * nothing to step to at either end of the list, so there it is simply disabled.
+ */
 function Arrow({
-  section,
   direction,
+  to,
+  onClick,
 }: {
-  section?: (typeof sections)[number];
   direction: "prev" | "next";
+  to?: (typeof sections)[number];
+  onClick: () => void;
 }) {
-  const icon = direction === "prev" ? "chevronLeft" : "chevronRight";
-  if (!section?.href) {
-    return (
-      <span className={`${styles.arrow} ${styles.disabled}`} aria-hidden="true">
-        <Icon name={icon} size={14} />
-      </span>
-    );
-  }
   return (
-    <Link href={section.href} className={styles.arrow} aria-label={`Go to ${section.name}`}>
-      <Icon name={icon} size={14} />
-    </Link>
+    <button
+      type="button"
+      className={`${styles.arrow} ${to ? "" : styles.disabled}`}
+      onClick={onClick}
+      disabled={!to}
+      aria-label={to ? `Show ${to.name}` : undefined}
+    >
+      <Icon name={direction === "prev" ? "chevronLeft" : "chevronRight"} size={14} />
+    </button>
   );
 }
