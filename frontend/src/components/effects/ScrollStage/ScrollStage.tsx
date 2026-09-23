@@ -38,10 +38,18 @@ export function ScrollStage({ children, className, stageClassName, destination, 
     if (!section) return;
     let frame = 0;
 
+    /*
+     * Screens of scroll at the tail of the track that buy no journey: progress
+     * reaches 1 while this much of the pinned stage is still to be scrolled, so
+     * whatever has arrived is held in place instead of being flicked past. Read
+     * from the stylesheet, so the track's height and this stay one number.
+     */
+    const dwell = parseFloat(getComputedStyle(section).getPropertyValue("--dwell")) || 0;
+
     const update = () => {
       frame = 0;
       const rect = section.getBoundingClientRect();
-      const distance = rect.height - window.innerHeight;
+      const distance = rect.height - window.innerHeight * (1 + dwell);
       const progress = distance > 0 ? Math.min(Math.max(-rect.top / distance, 0), 1) : 0;
       progressRef.current = progress;
       section.style.setProperty("--progress", progress.toFixed(4));

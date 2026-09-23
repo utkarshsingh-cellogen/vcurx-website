@@ -1,13 +1,21 @@
 /*
  * Tall scroll track: the extra height is the distance we fly toward the planet.
  * The stage is sticky, so the first viewport height is never travelled — what
- * the visitor actually scrolls is this minus 100vh.
+ * the visitor actually flies through is this minus 100vh, minus the dwell.
+ *
+ * `--dwell` is scroll that buys no journey: by the time it begins the arrival has
+ * landed and progress is already 1, and this much screen still has to be scrolled
+ * before the page moves on. Without it the arrival was ready with a quarter-screen
+ * to spare, so one flick of the wheel — or a burst of scroll queued while the globe
+ * was still compiling — carried the visitor straight past it into the domains.
+ * ScrollStage reads this same variable, so the two cannot drift apart.
  */
 .hero {
   --progress: 0;
+  --dwell: 0.9;
   position: relative;
-  height: 260vh;
-  height: 260svh;
+  height: calc(260vh + var(--dwell) * 100vh);
+  height: calc(260svh + var(--dwell) * 100svh);
 }
 
 .description {
