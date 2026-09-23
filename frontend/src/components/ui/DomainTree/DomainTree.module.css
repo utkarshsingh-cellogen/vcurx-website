@@ -256,47 +256,12 @@
 /* ==========================================================
    Leaves
    ========================================================== */
-/*
- * The bracket hangs at the column's left edge while the pill and the group name
- * above it are centred, so the spine used to begin with nothing joining it to
- * them. An elbow closes that gap: down the centre line, then left to the top of
- * the spine, so one unbroken path runs from the root to every product.
- */
 .leaves {
-  /* The gap above: a group's own, between its name and this list... */
-  --lead: 8px;
-  position: relative;
   display: grid;
   gap: 2px;
   width: 100%;
   padding-left: 14px;
   list-style: none;
-}
-
-/* ...or the column's, where the list follows the pill with no group name. */
-.leaves:first-child {
-  --lead: 10px;
-}
-
-.leaves::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: calc(var(--lead) * -1);
-  width: 1px;
-  height: var(--lead);
-  background: var(--line);
-}
-
-/* Lands on the spine exactly at its top, where the first row begins. */
-.leaves::after {
-  content: "";
-  position: absolute;
-  left: 14px;
-  right: 50%;
-  top: 0;
-  height: 1px;
-  background: var(--line);
 }
 
 /* Bracket: a spine down the left with a tick out to each product. */
@@ -396,18 +361,6 @@
 
   .column::before {
     left: 0;
-  }
-
-  /*
-   * Stacked, the pill sits at the left edge rather than the centre, so a list
-   * that follows it directly drops straight onto its spine with no elbow.
-   */
-  .leaves:first-child::before {
-    left: 14px;
-  }
-
-  .leaves:first-child::after {
-    display: none;
   }
 
   .leafStatus {
