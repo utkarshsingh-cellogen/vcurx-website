@@ -43,6 +43,10 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
+  images: {
+    // 75 for photographs; 90 for product logos, whose fine type and hard edges show artefacts first.
+    qualities: [75, 90],
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

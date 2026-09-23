@@ -250,3 +250,72 @@
     transform: none;
   }
 }
+
+/* ---------- logo cards ---------- */
+/*
+ * A product's own logo, shown whole on a plate of the ground it was drawn for. Nearly
+ * every logo is dark ink meant for a light page, so the plate is a warm paper white,
+ * a shade off pure white so it sits in the night-sky site without glaring. PromoterForge
+ * was drawn on navy and keeps it.
+ */
+.card[data-plate="light"] {
+  background: linear-gradient(165deg, #fdfcf8 0%, #f1ede5 100%);
+}
+
+.card[data-plate="dark"] {
+  background: radial-gradient(120% 85% at 50% 42%, #0b1d38 0%, #001021 72%);
+}
+
+/* The logo's box: clear of the name above and the button below. A logo that spells its
+   own name has no title to clear, so it rises higher, and since those are mostly wide
+   wordmarks, it takes nearly the full width too. */
+.plate {
+  position: absolute;
+  inset: 24% 12% 30%;
+  z-index: 0;
+}
+
+.card[data-named] .plate {
+  inset: 16% 8% 28%;
+}
+
+.logo {
+  object-fit: contain;
+  transition: transform 760ms var(--ease-out);
+}
+
+.card[data-state="active"] .logo {
+  transform: scale(1.05);
+}
+
+.card[data-plate="light"] .name {
+  color: #171a21;
+  text-shadow: none;
+}
+
+/* The smoked foot would read as a grey smudge on paper; a faint warm fade instead. */
+.card[data-plate="light"]::before {
+  background: linear-gradient(to top, rgba(222, 216, 204, 0.55), transparent);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.card[data-plate="light"] .cta {
+  background: rgba(16, 19, 26, 0.92);
+}
+
+/* The logo already says the name: keep it for screen readers only. */
+.hiddenName {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card[data-state="active"] .logo {
+    transform: none;
+  }
+}

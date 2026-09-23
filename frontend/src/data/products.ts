@@ -37,7 +37,19 @@ export type Product = {
   problem?: string;
   /** Exactly three steps, or none at all. */
   steps?: readonly [string, string, string];
+  /** The product's own logo, at `public/logos/<slug>.webp`. Cards show it in place of the photo. */
+  logo?: LogoInfo;
 };
+
+export type LogoInfo = {
+  /** The ground the logo was drawn for: nearly all are dark ink for a light page. */
+  plate: "light" | "dark";
+  /** Whether the logo spells out the product's name, so the card need not repeat it. */
+  named: boolean;
+};
+
+/** A logo ready for a card: where it is, and how it wants to be shown. */
+export type CardLogo = LogoInfo & { src: string };
 
 export const domains: readonly Domain[] = [
   {
@@ -72,34 +84,34 @@ export const domains: readonly Domain[] = [
 
 export const products: readonly Product[] = [
   // Therapeutics Intelligence
-  { name: "CAR-T AI Agent", slug: "car-t-ai-agent", domain: "therapeutics", status: "in-lab" },
+  { name: "CAR-T AI Agent", slug: "car-t-ai-agent", domain: "therapeutics", status: "in-lab", logo: { plate: "light", named: true } },
   { name: "GenAI PY Agent", slug: "genai-py-agent", domain: "therapeutics", status: "in-lab" },
 
   // Research › Bi-Sciterse › Design
-  { name: "HelixForge", slug: "helixforge", domain: "research", group: "Design", status: "in-lab" },
-  { name: "PromoterForge", slug: "promoterforge", domain: "research", group: "Design", status: "in-lab" },
-  { name: "CelAbGen", slug: "celabgen", domain: "research", group: "Design", status: "in-lab" },
-  { name: "Cimmexa", slug: "cimmexa", domain: "research", group: "Design", status: "in-lab" },
+  { name: "HelixForge", slug: "helixforge", domain: "research", group: "Design", status: "in-lab", logo: { plate: "light", named: true } },
+  { name: "PromoterForge", slug: "promoterforge", domain: "research", group: "Design", status: "in-lab", logo: { plate: "dark", named: true } },
+  { name: "CelAbGen", slug: "celabgen", domain: "research", group: "Design", status: "in-lab", logo: { plate: "light", named: true } },
+  { name: "Cimmexa", slug: "cimmexa", domain: "research", group: "Design", status: "in-lab", logo: { plate: "light", named: true } },
   { name: "Celnfo", slug: "celnfo", domain: "research", group: "Design", status: "in-lab" },
 
   // Research › Bi-Sciterse › Discovery
   { name: "Target Explorer", slug: "target-explorer", domain: "research", group: "Discovery", status: "in-lab" },
   { name: "Antigen Discovery", slug: "antigen-discovery", domain: "research", group: "Discovery", status: "in-lab" },
   { name: "Single-cell Analysis", slug: "single-cell-analysis", domain: "research", group: "Discovery", status: "in-lab" },
-  { name: "Spatiomic AI", slug: "spatiomic-ai", domain: "research", group: "Discovery", status: "in-lab" },
-  { name: "Virtual Cell", slug: "virtual-cell", domain: "research", group: "Discovery", status: "in-lab" },
+  { name: "Spatiomic AI", slug: "spatiomic-ai", domain: "research", group: "Discovery", status: "in-lab", logo: { plate: "light", named: false } },
+  { name: "Virtual Cell", slug: "virtual-cell", domain: "research", group: "Discovery", status: "in-lab", logo: { plate: "light", named: false } }, // The logo reads "CytoTwin", so the card keeps the product's name.
 
   // Clinical › AI-Doctor › Patient Care
-  { name: "Response Prediction", slug: "response-prediction", domain: "clinical", group: "Patient Care", status: "in-lab" },
-  { name: "Toxicity Prediction", slug: "toxicity-prediction", domain: "clinical", group: "Patient Care", status: "in-lab" },
-  { name: "Safety Monitoring", slug: "safety-monitoring", domain: "clinical", group: "Patient Care", status: "in-lab" },
-  { name: "Perturbation Analysis", slug: "perturbation-analysis", domain: "clinical", group: "Patient Care", status: "in-lab" },
+  { name: "Response Prediction", slug: "response-prediction", domain: "clinical", group: "Patient Care", status: "in-lab", logo: { plate: "light", named: false } },
+  { name: "Toxicity Prediction", slug: "toxicity-prediction", domain: "clinical", group: "Patient Care", status: "in-lab", logo: { plate: "light", named: false } },
+  { name: "Safety Monitoring", slug: "safety-monitoring", domain: "clinical", group: "Patient Care", status: "in-lab", logo: { plate: "light", named: false } },
+  { name: "Perturbation Analysis", slug: "perturbation-analysis", domain: "clinical", group: "Patient Care", status: "in-lab", logo: { plate: "light", named: false } },
 
   // Clinical › AI-Doctor › Regulatory
-  { name: "CiRA AI", slug: "cira-ai", domain: "clinical", group: "Regulatory", status: "in-lab" },
+  { name: "CiRA AI", slug: "cira-ai", domain: "clinical", group: "Regulatory", status: "in-lab", logo: { plate: "light", named: true } },
 
   // Diagnostic
-  { name: "OralPatho", slug: "oralpatho", domain: "diagnostic", status: "in-lab" },
+  { name: "OralPatho", slug: "oralpatho", domain: "diagnostic", status: "in-lab", logo: { plate: "light", named: false } },
 ];
 
 export const statusLabels: Record<ProductStatus, string> = {
@@ -136,4 +148,9 @@ export function groupedProducts(domain: Domain): readonly { name?: string; produ
  */
 export function photoFor(slug: string): string {
   return `/photos/${slug}.jpg`;
+}
+
+/** A product's logo, ready for a card, or undefined while it has only a photograph. */
+export function logoFor(product: Product): CardLogo | undefined {
+  return product.logo && { ...product.logo, src: `/logos/${product.slug}.webp` };
 }

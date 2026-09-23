@@ -6,6 +6,7 @@ import {
   domains,
   getDomain,
   groupedProducts,
+  logoFor,
   photoFor,
   productsIn,
 } from "@/data/products";
@@ -86,6 +87,7 @@ export default async function DomainPage({ params }: PageProps<"/domains/[slug]"
           const items: readonly DeckItem[] = group.products.map((product) => ({
             key: product.slug,
             image: photoFor(product.slug),
+            logo: logoFor(product),
             sizes: "(max-width: 1023px) 45vw, 270px",
             name: product.name,
             href: `/products/${product.slug}`,

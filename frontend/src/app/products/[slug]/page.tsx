@@ -5,6 +5,7 @@ import type { CSSProperties } from "react";
 import {
   getDomain,
   getProduct,
+  logoFor,
   photoFor,
   products,
   productsIn,
@@ -41,6 +42,7 @@ export default async function ProductPage({ params }: PageProps<"/products/[slug
     .map((other) => ({
       key: other.slug,
       image: photoFor(other.slug),
+      logo: logoFor(other),
       sizes: "(max-width: 1023px) 45vw, 260px",
       name: other.name,
       href: `/products/${other.slug}`,
@@ -65,6 +67,7 @@ export default async function ProductPage({ params }: PageProps<"/products/[slug
             <DeckCard
               size="hero"
               image={photoFor(product.slug)}
+              logo={logoFor(product)}
               priority
               sizes="(max-width: 1023px) 90vw, 420px"
               name={product.name}

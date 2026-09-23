@@ -1,12 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties, FocusEventHandler, PointerEventHandler } from "react";
+import type { CardLogo } from "@/data/products";
 import { Icon } from "@/components/ui/Icon";
 import styles from "./DeckCard.module.css";
 
 export type DeckCardProps = {
   /** Portrait photo filling the card. */
   image: string;
+  /** The product's own logo. When given, it replaces the photo, set on a plate of its own ground. */
+  logo?: CardLogo;
   name: string;
   href: string;
   cta?: string;
@@ -29,11 +32,14 @@ export type DeckCardProps = {
 
 /**
  * The card the whole site is built from: a name over a portrait image, and a
- * smoked bar at the foot carrying nothing but the call to action.
+ * smoked bar at the foot carrying nothing but the call to action. A product with a
+ * logo shows the logo instead, whole and centred on a plate, and drops the name
+ * when the logo already spells it.
  * It only dresses the state it is handed — a Deck decides which card is raised.
  */
 export function DeckCard({
   image,
+  logo,
   name,
   href,
   cta = "Explore",
@@ -54,6 +60,8 @@ export function DeckCard({
       className={styles.card}
       data-state={state}
       data-size={size}
+      data-plate={logo?.plate}
+      data-named={logo?.named || undefined}
       style={
         {
           "--domain": accent ? `var(${accent})` : "var(--accent)",
@@ -66,17 +74,19 @@ export function DeckCard({
       onFocus={onFocus}
       onBlur={onBlur}
     >
-      <Image
-        src={image}
-        alt=""
-        fill
-        sizes={sizes}
-        priority={priority}
-        className={styles.art}
-      />
-      <span className={styles.scrim} aria-hidden="true" />
+      {logo ? (
+        <span className={styles.plate}>
+          {/* Logos carry fine type and hard edges, so they are served above the default quality. */}
+          <Image src={logo.src} alt="" fill sizes={sizes} priority={priority} quality={90} className={styles.logo} />
+        </span>
+      ) : (
+        <>
+          <Image src={image} alt="" fill sizes={sizes} priority={priority} className={styles.art} />
+          <span className={styles.scrim} aria-hidden="true" />
+        </>
+      )}
 
-      <header className={styles.head}>
+      <header className={`${styles.head} ${logo?.named ? styles.hiddenName : ""}`}>
         <h3 className={styles.name}>{name}</h3>
       </header>
 
