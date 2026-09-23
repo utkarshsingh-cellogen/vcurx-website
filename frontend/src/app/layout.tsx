@@ -30,9 +30,25 @@ export const viewport: Viewport = {
   themeColor: siteConfig.themeColor,
 };
 
+/**
+ * The home page is one 420vh scroll journey, so a restored scroll position drops the
+ * visitor mid-flight with nothing to orient them. Runs during parse, before the
+ * browser gets to restore anything — an effect would restore first and then jump.
+ *
+ * It lives here rather than in the page because the root layout is only ever rendered
+ * on the server. A page is re-rendered in the browser when it is reached by a client
+ * navigation, and React refuses to create a <script> there: it would warn and never
+ * run it. The path check keeps it to the home page, so every other page keeps its
+ * normal back-button behaviour.
+ */
+const START_AT_TOP = `if(location.pathname==="/"){if("scrollRestoration" in history)history.scrollRestoration="manual";if(!location.hash)window.scrollTo(0,0);}`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${displayFont.variable} ${inter.variable} ${mono.variable}`}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: START_AT_TOP }} />
+      </head>
       <body>{children}</body>
     </html>
   );

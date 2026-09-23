@@ -89,7 +89,8 @@ Each domain's accent is a token in `src/app/globals.css`: `--domain-therapeutics
 `Cross-Origin-Opener-Policy`, `Referrer-Policy`, `X-Content-Type-Options`, `X-Frame-Options`,
 `Permissions-Policy` and HSTS. The policy keeps `'unsafe-inline'` on `script-src` on purpose —
 Next streams the RSC payload through inline scripts, so a nonce would need per-request
-middleware and every statically generated page would turn dynamic.
+middleware and every statically generated page would turn dynamic. In development only it also
+allows `'unsafe-eval'`, which React's dev build needs to rebuild call stacks for the error overlay.
 
 Shared links need an absolute origin. `siteConfig.url` reads `NEXT_PUBLIC_SITE_URL`, falls back
 to Vercel's production domain at build time, and finally to the deployed URL. It feeds
