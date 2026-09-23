@@ -12,7 +12,7 @@
  */
 .hero {
   --progress: 0;
-  --dwell: 0.9;
+  --dwell: 0.4;
   position: relative;
   height: calc(260vh + var(--dwell) * 100vh);
   height: calc(260svh + var(--dwell) * 100svh);
