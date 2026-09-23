@@ -15,5 +15,5 @@ export const TEXT_LINE_STAGGER = 0.22;
 export function revealTimings(headingLines: number, bodyLines: number) {
   const description = 0.55 + Math.max(0, headingLines - 2) * TEXT_LINE_STAGGER;
   const button = description + Math.max(1, bodyLines) * TEXT_LINE_STAGGER + 0.2;
-  return { description, button, selector: button + 0.35 };
+  return { description, button };
 }

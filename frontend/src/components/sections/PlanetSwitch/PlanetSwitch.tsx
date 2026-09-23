@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import type { SectionId, RichText as RichTextValue } from "@/config/content";
+import type { RichText as RichTextValue } from "@/config/content";
 import { useDestinationReady } from "@/components/effects/ScrollStage/ScrollStage";
 import { revealTimings } from "@/lib/revealSequence";
 import { Starfield } from "@/components/effects/Starfield";
 import { Icon } from "@/components/ui/Icon";
-import { PlanetSwitcher } from "@/components/ui/PlanetSwitcher";
 import { RichText } from "@/components/ui/RichText";
 import styles from "./PlanetSwitch.module.css";
 
@@ -16,16 +15,15 @@ type PlanetSwitchProps = {
     title: RichTextValue;
     body: string;
     cta: { label: string; href: string };
-    active: SectionId;
   };
   /** Accent glow: warm for Mars, blue for Earth — both over the same starry black. */
   tone: "mars" | "earth";
   embedded?: boolean;
 };
 
-/** Interlude between planets: a centred prompt, a CTA to the next section and the planet switcher. */
+/** Interlude between planets: a centred prompt and a CTA to the next section. */
 export function PlanetSwitch({ content, tone, embedded = false }: PlanetSwitchProps) {
-  const { id, title, body, cta, active } = content;
+  const { id, title, body, cta } = content;
   const sectionRef = useRef<HTMLElement>(null);
   const destinationReady = useDestinationReady();
   const [inView, setInView] = useState(false);
@@ -76,10 +74,6 @@ export function PlanetSwitch({ content, tone, embedded = false }: PlanetSwitchPr
             <span className={styles.ctaLabel}>{cta.label}<Icon name="arrowUpRight" size={14} /></span>
           </a>
         </div>
-      </div>
-
-      <div className={styles.switcher}>
-        <PlanetSwitcher active={active} reveal playing={playing} delay={timing.selector} />
       </div>
     </section>
   );

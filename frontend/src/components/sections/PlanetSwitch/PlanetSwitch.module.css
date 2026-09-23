@@ -3,7 +3,6 @@
   isolation: isolate;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: 1fr auto;
   justify-items: center;
   min-height: 100vh;
   min-height: 100svh;
@@ -132,19 +131,15 @@
   box-shadow: 0 14px 30px -12px rgba(255, 255, 255, 0.45);
 }
 
-.switcher {
-  margin-top: 48px;
-}
-
 /*
  * Depth, for the interlude inside the hero's pinned stage. The hero supplies
  * --content-arrival (0 → 1 as the scene lands) and --exit (0 → 1 as the stage scrolls
  * away), and each layer travels its own distance on both: the far layers — stars, then
- * the glow — barely move, the near ones — words, then the switcher — move most. That
+ * the glow — barely move, the near ones — the words — move most. That
  * difference in speed is what reads as depth.
  *
  * On the way in only the stars and glow are visible; the words wait for the landing
- * before they write themselves in. On the way out the near layers outrun the page and
+ * before they write themselves in. On the way out the words outrun the page and
  * fade, while the far ones lag behind it.
  */
 .embedded {
@@ -167,16 +162,10 @@
   opacity: calc(1 - var(--out) * 1.5);
 }
 
-.embedded .switcher {
-  transform: translate3d(0, calc(var(--out) * -28vh), 0);
-  opacity: calc(1 - var(--out) * 2);
-}
-
 @media (prefers-reduced-motion: reduce) {
   .embedded .stars,
   .embedded .backdrop,
-  .embedded .center,
-  .embedded .switcher {
+  .embedded .center {
     transform: none;
   }
 }
