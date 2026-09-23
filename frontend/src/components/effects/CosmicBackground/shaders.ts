@@ -127,18 +127,52 @@ export const fragmentShader = /* glsl */ `
       }
       // Keep India's geography clear as the camera arrives.
       cloud *= mix(0.8, 0.16, uApproach);
-      vec3 surface = day * (0.12 + 1.3 * lit);
-      surface = mix(surface, vec3(0.12 + 1.15 * lit), smoothstep(0.1, 0.9, cloud));
       float ocean = smoothstep(0.02, 0.1, day.b - max(day.r, day.g));
+      vec3 surface = day * (0.1 + 1.3 * lit);
+      surface = mix(surface, vec3(0.12 + 1.15 * lit), smoothstep(0.1, 0.9, cloud));
+
+      /*
+       * City lights. There is no night texture, so they are struck from a jittered
+       * grid in geographic space: fixed to the globe, sparse, and only on land.
+       * They fade in with the approach — a light is smaller than a pixel from far
+       * out, and sub-pixel points crawl and shimmer as the camera turns.
+       */
+      float night = smoothstep(0.16, -0.04, lit);
+      float lightsIn = night * (1.0 - ocean) * smoothstep(0.08, 0.45, uApproach) * uTexMix;
+      if (lightsIn > 0.001) {
+        vec2 cell = uv * vec2(620.0, 310.0);
+        vec2 id = floor(cell);
+        vec2 f = fract(cell) - 0.5;
+        float h = hash21(id + 3.1);
+        vec2 jitter = (vec2(hash21(id + 5.7), hash21(id + 9.2)) - 0.5) * 0.7;
+        float d = length(f - jitter);
+        // Towns outnumber cities: most cells are dark, a few carry a bright core.
+        float town = step(0.87, h);
+        float city = step(0.975, h);
+        float spark = exp(-d * d * 46.0) * (0.35 + 0.65 * city);
+        float flicker = 0.78 + 0.22 * sin(t * (0.9 + 1.8 * h) + h * 30.0);
+        // Cloud over a city diffuses it rather than hiding it.
+        surface += vec3(1.0, 0.74, 0.39) * (town + city) * spark * flicker * lightsIn
+                   * (1.0 - 0.55 * smoothstep(0.2, 0.8, cloud));
+      }
+
+      // Sunset band: the thin warm line the terminator wears from orbit. Measured on the
+      // unclamped light, since lit is zero across the whole night side and would tint all of it.
+      float sunSide = dot(n, light);
+      surface += vec3(1.0, 0.5, 0.22) * exp(-pow((sunSide - 0.04) / 0.07, 2.0)) * 0.06;
+
       vec3 halfLight = normalize(light + vec3(0.0, 0.0, 1.0));
       surface += vec3(0.7, 0.85, 1.0) * pow(max(dot(n, halfLight), 0.0), 70.0) * ocean * (1.0 - cloud) * 0.35;
-      surface += vec3(0.18, 0.45, 1.0) * pow(1.0 - z, 2.6) * (0.2 + lit);
+      // Atmosphere seen through the disc: thickest at the limb, lit where the sun is.
+      surface += vec3(0.24, 0.54, 1.0) * pow(1.0 - z, 3.0) * (0.14 + 1.15 * lit);
       col = mix(stars, surface, coverage);
     }
     float rimLight = smoothstep(-0.5, 0.9, dot(q / max(dist, 0.0001), normalize(light.xy)));
     float outside = max(dist - 1.0, 0.0) * uRadius;
-    float halo = exp(-outside / 0.015) * 0.7 + exp(-outside / 0.065) * 0.2;
-    col += vec3(0.2, 0.5, 1.0) * halo * rimLight * (1.0 - coverage);
+    // Three falls: a hot cyan edge, the blue shell, then a wide faint bloom.
+    float halo = exp(-outside / 0.008) * 0.85 + exp(-outside / 0.032) * 0.42 + exp(-outside / 0.12) * 0.15;
+    vec3 haloTint = mix(vec3(0.18, 0.46, 1.0), vec3(0.48, 0.8, 1.0), exp(-outside / 0.012));
+    col += haloTint * halo * rimLight * (1.0 - coverage);
     // The opening keeps its dramatic shadow; the India view is evenly readable.
     col *= mix(mix(0.2, 1.0, smoothstep(-0.55, 0.02, p.y)), 1.0, uApproach);
     vec2 uv = gl_FragCoord.xy / uRes;
