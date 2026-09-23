@@ -1,0 +1,444 @@
+/*
+ * Ported from reference/vcurx-solar-system.html. The section is transparent: the page
+ * it sits on already carries the sky, so the reference's own star canvas is not drawn.
+ * The reference's colour tokens are kept under their own names so they cannot shift
+ * with the site theme.
+ */
+.section,
+.panel {
+  --sol-ink: #f3ede2;
+  --sol-muted: rgba(243, 237, 226, 0.56);
+  --sol-faint: rgba(243, 237, 226, 0.09);
+  --sol-glass: rgba(8, 10, 16, 0.76);
+  color: var(--sol-ink);
+  font-family: var(--font-body);
+}
+
+.section {
+  position: relative;
+  z-index: 1;
+  padding: clamp(40px, 8vh, 96px) 0 clamp(24px, 5vh, 56px);
+}
+
+.title {
+  margin: 0 16px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(2.2rem, 5.4vw, 4.4rem);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  text-align: center;
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  height: clamp(560px, 82vh, 800px);
+  overflow: hidden;
+}
+
+.orbits {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.orbitsBack {
+  z-index: 1;
+}
+
+.orbitsFront {
+  z-index: 6;
+}
+
+/* ---------- sun ---------- */
+.sun {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 5;
+  width: var(--sun, 140px);
+  height: var(--sun, 140px);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/*
+ * The glow is a static gradient behind the disc, never a box-shadow on the canvas:
+ * a shadow on a rotating element is re-rasterised as it turns and showed square
+ * clipping at its corners.
+ */
+.sun::before {
+  content: "";
+  position: absolute;
+  inset: -120%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle closest-side,
+    rgba(255, 214, 160, 0.3) 18%,
+    rgba(255, 170, 90, 0.12) 32%,
+    rgba(255, 150, 70, 0.04) 50%,
+    transparent 70%
+  );
+}
+
+.sun canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  animation: spin 240s linear infinite;
+}
+
+.sun::after {
+  content: "";
+  position: absolute;
+  inset: -60%;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    circle closest-side,
+    transparent 43%,
+    rgba(255, 206, 140, 0.55) 45.5%,
+    rgba(255, 175, 95, 0.22) 56%,
+    rgba(255, 150, 70, 0.06) 75%,
+    transparent 100%
+  );
+}
+
+.sunLabel {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 7;
+  transform: translate(-50%, calc(var(--sun, 140px) / 2 + 14px));
+  line-height: 1.2;
+  text-align: center;
+  pointer-events: none;
+}
+
+.sunName {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.sunSub {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--sol-muted);
+}
+
+/* ---------- planets ---------- */
+.planet {
+  --o: 1;
+  --dim: 1;
+  position: absolute;
+  left: 0;
+  top: 0;
+  isolation: isolate;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  opacity: calc(var(--o) * var(--dim));
+  transition: opacity 0.5s ease;
+  will-change: transform;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hasSelection .planet:not(.isSelected) {
+  --dim: 0.3;
+}
+
+.gfx {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+
+.ready .gfx {
+  opacity: 1;
+}
+
+.planet:focus-visible {
+  outline: none;
+}
+
+.planet:focus-visible::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  z-index: 5;
+  border: 1.5px solid var(--c);
+  border-radius: 50%;
+}
+
+.planet.isSelected::before {
+  content: "";
+  position: absolute;
+  inset: -12px;
+  z-index: 5;
+  border: 1px solid color-mix(in oklab, var(--c) 70%, transparent);
+  border-radius: 50%;
+  animation: ping 2.4s ease-out infinite;
+}
+
+.moon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at calc(50% + var(--mlx, 0) * 36%) calc(50% + var(--mly, 0) * 36%),
+    #efebe4 0%,
+    #a39d93 34%,
+    #3d3a35 68%,
+    #121110 100%
+  );
+  pointer-events: none;
+}
+
+.label {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 14px);
+  z-index: 4;
+  transform: translateX(-50%);
+  line-height: 1.25;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.labelName {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.labelCount {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--sol-muted);
+}
+
+/* ---------- detail panel ---------- */
+.panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  width: min(400px, 92vw);
+  padding: calc(env(safe-area-inset-top, 0px) + 28px) 28px calc(env(safe-area-inset-bottom, 0px) + 28px);
+  overflow-y: auto;
+  border-left: 1px solid var(--sol-faint);
+  background: var(--sol-glass);
+  backdrop-filter: blur(18px) saturate(1.2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  transform: translateX(104%);
+  transition: transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.panel.open {
+  transform: translateX(0);
+}
+
+.panelClose {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 18px);
+  right: 18px;
+  padding: 6px 14px;
+  border: 1px solid var(--sol-faint);
+  border-radius: 999px;
+  background: none;
+  color: var(--sol-muted);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.panelClose:hover,
+.panelClose:focus-visible {
+  border-color: var(--sol-muted);
+  color: var(--sol-ink);
+  outline: none;
+}
+
+.swatch {
+  display: block;
+  width: auto;
+  height: 72px;
+  margin: 0 0 18px -6px;
+}
+
+.panelTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 2.1rem;
+  line-height: 1.1;
+}
+
+.meta {
+  margin: 8px 0 0;
+  font-size: 0.9rem;
+  color: var(--sol-muted);
+}
+
+.desc {
+  max-width: 34ch;
+  margin: 18px 0 8px;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.group {
+  margin-top: 22px;
+}
+
+.groupTitle {
+  margin: 0 0 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--sol-muted);
+}
+
+.groupList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.groupLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 -12px;
+  padding: 11px 12px;
+  border-radius: 10px;
+  color: var(--sol-ink);
+  font-size: 0.98rem;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.groupLink::before {
+  content: "";
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--c);
+}
+
+.groupLink:hover,
+.groupLink:focus-visible {
+  background: color-mix(in oklab, var(--c) 14%, transparent);
+  outline: none;
+}
+
+.openDomain {
+  display: inline-block;
+  margin-top: 30px;
+  padding: 12px 20px;
+  border: 1px solid color-mix(in oklab, var(--c) 55%, transparent);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--c) 10%, transparent);
+  color: var(--sol-ink);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.openDomain:hover,
+.openDomain:focus-visible {
+  background: color-mix(in oklab, var(--c) 22%, transparent);
+  outline: none;
+}
+
+@media (max-width: 700px) {
+  .stage {
+    height: clamp(440px, 62vh, 580px);
+  }
+
+  .labelCount {
+    display: none;
+  }
+
+  .labelName {
+    font-size: 0.8rem;
+  }
+
+  .sunName {
+    font-size: 0.95rem;
+  }
+
+  .sunSub {
+    display: none;
+  }
+
+  .panel {
+    top: auto;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: 72vh;
+    border-left: 0;
+    border-top: 1px solid var(--sol-faint);
+    border-radius: 22px 22px 0 0;
+    transform: translateY(104%);
+  }
+
+  .panel.open {
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ping {
+  from {
+    transform: scale(0.92);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(1.45);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sun canvas,
+  .planet.isSelected::before {
+    animation: none;
+  }
+
+  .panel {
+    transition: none;
+  }
+}

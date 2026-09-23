@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { domains, products } from "@/data/products";
 import { Starfield } from "@/components/effects/Starfield";
+import { DomainSolarSystem } from "@/components/domains/DomainSolarSystem";
 import { DomainTree } from "@/components/ui/DomainTree";
 import { Icon } from "@/components/ui/Icon";
 import { SiteNav } from "@/components/ui/SiteNav";
@@ -24,6 +25,8 @@ export default function DomainsPage() {
         </header>
 
         <DomainTree />
+
+        <DomainSolarSystem />
 
         <Link href="/#domains" className={styles.back}>
           <Icon name="chevronLeft" size={14} />
