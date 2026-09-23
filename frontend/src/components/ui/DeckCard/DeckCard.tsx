@@ -1,14 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { CSSProperties, FocusEventHandler, PointerEventHandler, ReactNode } from "react";
+import type { CSSProperties, FocusEventHandler, PointerEventHandler } from "react";
 import { Icon } from "@/components/ui/Icon";
 import styles from "./DeckCard.module.css";
 
 export type DeckCardProps = {
-  /** Portrait photo filling the card. Falls back to `art` when absent. */
-  image?: string;
-  /** Drawn artwork, for cards with no photograph. */
-  art?: ReactNode;
+  /** Portrait photo filling the card. */
+  image: string;
   name: string;
   href: string;
   cta?: string;
@@ -36,7 +34,6 @@ export type DeckCardProps = {
  */
 export function DeckCard({
   image,
-  art,
   name,
   href,
   cta = "Explore",
@@ -69,18 +66,14 @@ export function DeckCard({
       onFocus={onFocus}
       onBlur={onBlur}
     >
-      {image ? (
-        <Image
-          src={image}
-          alt=""
-          fill
-          sizes={sizes}
-          priority={priority}
-          className={styles.art}
-        />
-      ) : (
-        <span className={styles.art}>{art}</span>
-      )}
+      <Image
+        src={image}
+        alt=""
+        fill
+        sizes={sizes}
+        priority={priority}
+        className={styles.art}
+      />
       <span className={styles.scrim} aria-hidden="true" />
 
       <header className={styles.head}>

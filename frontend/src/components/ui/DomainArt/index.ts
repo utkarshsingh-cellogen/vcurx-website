@@ -1,1 +1,0 @@
-export { DomainArt } from "./DomainArt";

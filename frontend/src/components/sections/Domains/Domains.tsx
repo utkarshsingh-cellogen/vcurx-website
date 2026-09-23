@@ -1,15 +1,16 @@
 import { domainsSection } from "@/config/content";
-import { domains } from "@/data/products";
+import { domains, photoFor } from "@/data/products";
 import { DeepSpace } from "@/components/effects/DeepSpace";
 import { MobileDomainList } from "@/components/ui/MobileDomainList";
 import { Deck, type DeckItem } from "@/components/ui/Deck";
-import { DomainArt } from "@/components/ui/DomainArt";
 import styles from "./Domains.module.css";
 
-/** Drawn artwork rather than photographs here: the deck sits in deep space. */
+/** The same photographs the domain pages open with, so the deck and the page agree. */
 const items: readonly DeckItem[] = domains.map((domain) => ({
   key: domain.slug,
-  art: <DomainArt slug={domain.slug} />,
+  image: photoFor(domain.slug),
+  /* The fan is hidden below 1024px, so only the desktop width is worth fetching. */
+  sizes: "270px",
   name: domain.shortName ?? domain.name,
   href: `/domains/${domain.slug}`,
   accent: domain.accent,
