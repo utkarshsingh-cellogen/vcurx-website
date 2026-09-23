@@ -91,21 +91,64 @@
   align-items: center;
 }
 
-/*
- * The mark is a 2.4:1 image, so a single min() can pick whichever of width or
- * height runs out first. That keeps it clear of the planet on short, wide
- * windows without the transparent letterboxing a max-height would leave.
- */
-.content .mark {
-  margin: 0;
-  width: min(88vw, calc(44vh * 2.4), 1120px);
-  /* The vw term is measured against the viewport, not the padded stage, so this
-     keeps the mark inside the gutter on narrow screens. */
-  max-width: 100%;
+/* Scoped under .content so it reliably overrides the headline's default size */
+.content .headline {
+  /* Also capped by height so short, wide windows keep the text clear of the planet */
+  /* Big wordmark spanning ~¾ of the width, capped by height so it clears the planet */
+  font-size: min(27vw, 40vh);
+  line-height: 0.92;
+  letter-spacing: -0.01em;
 }
 
-.logo {
+/* "—— we cure us ——" */
+.tagline {
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 2.2vw, 30px);
+  margin-top: clamp(16px, 2.4vw, 30px);
+  font-size: clamp(12px, 1.3vw, 18px);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.6em;
+  /* balance the trailing letter-spacing so the text stays optically centered */
+  padding-left: 0.6em;
+  color: rgba(247, 241, 232, 0.72);
+  opacity: 0;
+  animation: taglineIn 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.65s forwards;
+}
+
+/* Hairlines that fade out toward their far ends */
+.rule {
   display: block;
-  width: 100%;
-  height: auto;
+  width: clamp(36px, 6vw, 96px);
+  height: 1px;
+  transform: scaleX(0);
+  animation: ruleIn 1.2s var(--ease-out) 1.3s forwards;
+}
+
+.rule:first-child {
+  background: linear-gradient(90deg, transparent, rgba(247, 241, 232, 0.5));
+  transform-origin: right;
+}
+
+.rule:last-child {
+  background: linear-gradient(90deg, rgba(247, 241, 232, 0.5), transparent);
+  transform-origin: left;
+}
+
+@keyframes taglineIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.7em);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ruleIn {
+  to {
+    transform: scaleX(1);
+  }
 }
