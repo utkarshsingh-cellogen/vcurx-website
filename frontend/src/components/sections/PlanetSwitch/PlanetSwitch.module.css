@@ -136,6 +136,51 @@
   margin-top: 48px;
 }
 
+/*
+ * Depth, for the interlude inside the hero's pinned stage. The hero supplies
+ * --content-arrival (0 → 1 as the scene lands) and --exit (0 → 1 as the stage scrolls
+ * away), and each layer travels its own distance on both: the far layers — stars, then
+ * the glow — barely move, the near ones — words, then the switcher — move most. That
+ * difference in speed is what reads as depth.
+ *
+ * On the way in only the stars and glow are visible; the words wait for the landing
+ * before they write themselves in. On the way out the near layers outrun the page and
+ * fade, while the far ones lag behind it.
+ */
+.embedded {
+  --in: calc(1 - var(--content-arrival, 1));
+  --out: var(--exit, 0);
+}
+
+.embedded .stars {
+  transform: translate3d(0, calc(var(--in) * 8vh + var(--out) * 40vh), 0);
+}
+
+.embedded .backdrop {
+  transform:
+    translate3d(0, calc(var(--in) * 22vh + var(--out) * 26vh), 0)
+    scale(calc(1 + var(--in) * 0.18));
+}
+
+.embedded .center {
+  transform: translate3d(0, calc(var(--out) * -14vh), 0);
+  opacity: calc(1 - var(--out) * 1.5);
+}
+
+.embedded .switcher {
+  transform: translate3d(0, calc(var(--out) * -28vh), 0);
+  opacity: calc(1 - var(--out) * 2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .embedded .stars,
+  .embedded .backdrop,
+  .embedded .center,
+  .embedded .switcher {
+    transform: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce), (scripting: none) {
   .section[data-sequence] .cta,
   .section[data-sequence] .ctaLabel {

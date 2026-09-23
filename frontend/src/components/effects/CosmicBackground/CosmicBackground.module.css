@@ -35,6 +35,15 @@
   opacity: 0;
   transition: opacity 1s var(--ease-out);
   filter: blur(calc(var(--arrival, 0) * 7px));
+  /*
+   * The map keeps moving while the journey is held over Delhi — a slow push-in — so the
+   * pause reads as lingering rather than stuck. Then, as the destination rises in front,
+   * the map lifts away more slowly than it does: the far layer of the parallax. It grows
+   * faster than it lifts, so its bottom edge never comes into view.
+   */
+  transform:
+    translate3d(0, calc(var(--arrival, 0) * -7vh), 0)
+    scale(calc(1 + var(--hold-progress, 0) * 0.06 + var(--arrival, 0) * 0.12));
 }
 
 .ready {
@@ -43,5 +52,5 @@
 
 
 @media (prefers-reduced-motion: reduce) {
-  .canvas { filter: none; }
+  .canvas { filter: none; transform: none; }
 }

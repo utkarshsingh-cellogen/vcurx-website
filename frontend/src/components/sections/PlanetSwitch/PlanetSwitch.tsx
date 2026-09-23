@@ -64,7 +64,7 @@ export function PlanetSwitch({ content, tone, embedded = false }: PlanetSwitchPr
     <section ref={sectionRef} id={id} data-sequence={playing ? "playing" : "waiting"}
       style={{ "--button-delay": `${timing.button}s` } as CSSProperties}
       className={`${styles.section} ${styles[tone]} ${embedded ? styles.embedded : ""}`}>
-      <Starfield />
+      <Starfield className={styles.stars} />
       <div className={styles.backdrop} aria-hidden="true" />
 
       <div className={styles.center}>

@@ -33,6 +33,42 @@
   letter-spacing: -0.015em;
 }
 
+/*
+ * As the interlude above scrolls away, this section rises to meet it: the heading and
+ * the galaxies each close a different distance over the same stretch of scroll, so they
+ * arrive as two layers rather than one sheet. Scroll-driven, so it runs on the
+ * compositor with no script; browsers without view timelines simply skip it.
+ */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .header,
+    .galaxies {
+      animation: rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 42%;
+    }
+
+    .header {
+      --rise: 10vh;
+    }
+
+    .galaxies {
+      --rise: 24vh;
+    }
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, var(--rise), 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @media (max-width: 767px) {
   .header {
     justify-items: start;

@@ -9,13 +9,20 @@
  * to spare, so one flick of the wheel — or a burst of scroll queued while the globe
  * was still compiling — carried the visitor straight past it into the domains.
  * ScrollStage reads this same variable, so the two cannot drift apart.
+ *
+ * `--hold` is the same idea mid-journey: the camera has settled over Delhi at
+ * `--hold-at`, and the map stays put for this many screens — about two scrolls —
+ * before the dive into the destination begins. Without it the map was on screen
+ * for under a third of a screen before the dive took it away.
  */
 .hero {
   --progress: 0;
   --dwell: 0.4;
+  --hold: 0.8;
+  --hold-at: 0.6;
   position: relative;
-  height: calc(260vh + var(--dwell) * 100vh);
-  height: calc(260svh + var(--dwell) * 100svh);
+  height: calc(260vh + (var(--dwell) + var(--hold)) * 100vh);
+  height: calc(260svh + (var(--dwell) + var(--hold)) * 100svh);
 }
 
 .description {

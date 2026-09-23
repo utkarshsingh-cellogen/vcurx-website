@@ -26,7 +26,7 @@ export function Domains() {
           <h2 id="domains-title" className={styles.title}>{domainsSection.title}</h2>
         </header>
 
-        <GalaxyRow items={items} narrow="hide" />
+        <GalaxyRow items={items} narrow="hide" className={styles.galaxies} />
         <MobileDomainList />
       </div>
     </section>

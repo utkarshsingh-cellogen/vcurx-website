@@ -27,6 +27,10 @@ type ScrollStageProps = {
 /**
  * A tall section whose child "stage" stays pinned to the viewport while the user scrolls through it.
  * Progress is exposed as the CSS variable `--progress` (0–1) and via `useScrollProgressRef()`.
+ *
+ * Two more variables drive scroll-linked motion outside the journey itself:
+ * `--hold-progress` (0–1) runs while progress is paused at `--hold-at`, and `--exit`
+ * (0–1) runs as the stage unpins and scrolls away.
  */
 export function ScrollStage({ children, className, stageClassName, destination, destinationClassName }: ScrollStageProps) {
   const sectionRef = useRef<HTMLElement>(null);
@@ -44,15 +48,36 @@ export function ScrollStage({ children, className, stageClassName, destination, 
      * whatever has arrived is held in place instead of being flicked past. Read
      * from the stylesheet, so the track's height and this stay one number.
      */
-    const dwell = parseFloat(getComputedStyle(section).getPropertyValue("--dwell")) || 0;
+    const css = getComputedStyle(section);
+    const dwell = parseFloat(css.getPropertyValue("--dwell")) || 0;
+    /*
+     * A pause partway through: when progress reaches `--hold-at`, it stays there for
+     * `--hold` screens of scroll before the journey carries on. Unlike the dwell it sits
+     * mid-journey, so whatever is on screen at that point gets its own moment.
+     */
+    const hold = parseFloat(css.getPropertyValue("--hold")) || 0;
+    const holdAt = parseFloat(css.getPropertyValue("--hold-at")) || 0;
+    const clamp01 = (value: number) => Math.min(Math.max(value, 0), 1);
 
     const update = () => {
       frame = 0;
       const rect = section.getBoundingClientRect();
-      const distance = rect.height - window.innerHeight * (1 + dwell);
-      const progress = distance > 0 ? Math.min(Math.max(-rect.top / distance, 0), 1) : 0;
+      const viewport = window.innerHeight;
+      const holdPx = hold * viewport;
+      // Scroll that actually moves the journey: the track, less the pinned screen, the dwell and the hold.
+      const distance = rect.height - viewport * (1 + dwell) - holdPx;
+      const scrolled = Math.max(-rect.top, 0);
+      const holdStart = holdAt * distance;
+      const journey = scrolled < holdStart ? scrolled : Math.max(holdStart, scrolled - holdPx);
+      const progress = distance > 0 ? clamp01(journey / distance) : 0;
+      const held = holdPx > 0 ? clamp01((scrolled - holdStart) / holdPx) : 0;
+      // Zero while pinned, one once the stage has scrolled a full screen out of view.
+      const exit = clamp01(1 - rect.bottom / viewport);
+
       progressRef.current = progress;
       section.style.setProperty("--progress", progress.toFixed(4));
+      section.style.setProperty("--hold-progress", held.toFixed(4));
+      section.style.setProperty("--exit", exit.toFixed(4));
       setPhase((previous) => destinationPhase(previous, progress));
     };
     const schedule = () => {
