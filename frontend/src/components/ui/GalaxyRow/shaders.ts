@@ -14,33 +14,19 @@
 
 const DISK = /* glsl */ `
   const float PI = 3.14159265;
+  /* The radius the arms are measured out from, in galaxy radii. */
+  const float ARM_ROOT = 0.1;
 
   uniform vec2 uSky;      // cos, sin of the position angle
   uniform vec2 uIncl;     // cos, sin of the inclination
   uniform float uMirror;  // 1 or -1: which way the galaxy turns
   uniform float uPattern; // how far the arms have turned
   uniform float uWind;    // arm winding: 1 / tan(pitch angle)
-  uniform float uArms;    // how many arms: 2, or 4 for the Milky Way
-  uniform float uMinor;   // brightness of every other arm; 1 when all are equal
-  uniform float uArmRoot; // the radius the arms leave from: the bar's end, when there is one
-  uniform float uArmWidth;
-
-  /* Where arm 0 crosses radius r, measured round the disc. */
-  float armBase(float r) {
-    return uPattern - uWind * log(max(r, 0.02) / uArmRoot);
-  }
 
   /* Signed angle from the nearest arm; negative is upstream, where the gas arrives from. */
   float armAngle(float ang, float r) {
-    float period = 2.0 * PI / uArms;
-    return mod(ang - armBase(r) + period * 0.5, period) - period * 0.5;
-  }
-
-  /* 1 on the major arms, uMinor on the arms between them. */
-  float armStrength(float ang, float r) {
-    float period = 2.0 * PI / uArms;
-    float index = floor((ang - armBase(r) + period * 0.5) / period);
-    return mod(index, 2.0) < 0.5 ? 1.0 : uMinor;
+    float arm = uPattern - uWind * log(max(r, 0.02) / ARM_ROOT);
+    return mod(ang - arm + PI * 0.5, PI) - PI * 0.5;
   }
 
   /* The same offset as a distance across the arm, in galaxy radii. */
@@ -88,8 +74,8 @@ export const pointVertexShader = /* glsl */ `
 
     gl_Position = vec4(uCenter + project(vec3(cos(ang) * r, sin(ang) * r, aOrbit.z)) * uRadius, 0.0, 1.0);
 
-    float across = armDistance(ang, r) / ((0.03 + 0.03 * r) * uArmWidth);
-    float onArm = exp(-0.5 * across * across) * smoothstep(0.06, 0.22, r) * armStrength(ang, r);
+    float across = armDistance(ang, r) / (0.03 + 0.03 * r);
+    float onArm = exp(-0.5 * across * across) * smoothstep(0.06, 0.22, r);
     float arm = mix(1.0, 0.55 + 1.4 * onArm, aOrbit.w * uFlow);
 
     float twinkle = 0.8 + 0.2 * sin(uClock * (0.9 + aGlow.y * 2.2) + aGlow.y * 61.0);
@@ -153,27 +139,8 @@ export const hazeFragmentShader = /* glsl */ `
   uniform vec3 uDust;
   uniform vec3 uCompanion; // x, y in galaxy radii, size; size 0 for none
   uniform float uGain;
-  uniform float uBar;        // the bar's half-length in galaxy radii; 0 for none
-  uniform float uClump;      // 0–1: how far the arms break into knots and the lanes into filaments
-  uniform float uDustAmount;
 
   varying vec2 vSky;
-
-  float hash(vec2 p) {
-    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
-  }
-
-  float noise(vec2 p) {
-    vec2 i = floor(p);
-    vec2 f = fract(p);
-    f = f * f * (3.0 - 2.0 * f);
-    return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
-               mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
-  }
-
-  float fbm(vec2 p) {
-    return 0.6 * noise(p) + 0.4 * noise(p * 2.3 + 11.0);
-  }
 
   void main() {
     // Undo the position angle, then the tilt, to find this pixel on the disc.
@@ -181,29 +148,21 @@ export const hazeFragmentShader = /* glsl */ `
     vec2 d = vec2(q.x, q.y / max(uIncl.x, 0.08)) * vec2(1.0, uMirror);
     float r = length(d);
     float ang = atan(d.y, d.x);
-    // The same point in the frame that turns with the arms, so knots and the bar travel with them.
-    vec2 dp = vec2(d.x * cos(uPattern) + d.y * sin(uPattern), -d.x * sin(uPattern) + d.y * cos(uPattern));
 
     // The bulge is a squashed ball, not a disc, so it foreshortens far less.
     float rb = length(vec2(q.x, q.y / 0.74));
     float bulge = 1.5 * exp(-rb * rb / 0.0018) + 1.0 * exp(-rb / 0.055) + 0.4 * exp(-rb / 0.15);
-    if (uBar > 0.0) {
-      vec2 b = dp / vec2(uBar, uBar * 0.3);
-      bulge += 0.95 * exp(-1.7 * dot(b, b));
-    }
 
     float fade = smoothstep(1.12, 0.55, r);
     float disk = exp(-r / 0.34) * fade;
-    float across = armDistance(ang, r) / ((0.04 + 0.035 * r) * uArmWidth);
-    float arms = exp(-0.5 * across * across) * smoothstep(0.1, 0.3, r) * fade * armStrength(ang, r);
-    arms *= mix(1.0, 0.3 + 1.4 * fbm(dp * 9.0), uClump);
+    float across = armDistance(ang, r) / (0.04 + 0.035 * r);
+    float arms = exp(-0.5 * across * across) * smoothstep(0.1, 0.3, r) * fade;
 
     // Lanes run along the upstream edge of each arm, and read darkest where they cross the bulge.
-    float lanePos = (armDistance(ang, r) + 0.03 * uArmWidth) / 0.017;
+    float lanePos = (armDistance(ang, r) + 0.03) / 0.017;
     float lane = exp(-0.5 * lanePos * lanePos) * smoothstep(0.09, 0.22, r) * smoothstep(0.95, 0.55, r);
-    lane *= armStrength(ang, r) * mix(1.0, smoothstep(0.32, 0.78, fbm(dp * 16.0 + 5.0)), uClump);
     float nearSide = 0.45 + 0.55 * smoothstep(0.05, -0.12, q.y * uMirror);
-    vec3 filterLight = mix(vec3(1.0), uDust, lane * nearSide * 0.6 * uDustAmount);
+    vec3 filterLight = mix(vec3(1.0), uDust, lane * nearSide * 0.6);
 
     vec3 diskColor = mix(uDiskTint, uCore, exp(-r / 0.22));
     vec3 col = uCore * bulge + diskColor * (0.62 * disk + 0.55 * arms * exp(-r / 0.7));
