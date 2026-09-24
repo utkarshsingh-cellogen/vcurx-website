@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { Fragment, type CSSProperties } from "react";
 import { domainsSection } from "@/config/content";
 import { domains, groupedProducts, photoFor, productCard } from "@/data/products";
 import { DeepSpace } from "@/components/effects/DeepSpace";
@@ -20,7 +20,21 @@ export function Domains() {
 
       <div className={styles.inner}>
         <header className={styles.header}>
-          <h2 id="domains-title" className={styles.title}>{domainsSection.title}</h2>
+          <h2 id="domains-title" className={styles.title}>
+            {/* Read whole; the split letters below are only drawn. */}
+            <span className={styles.srOnly}>{domainsSection.title}</span>
+            <span aria-hidden="true">
+              {domainsSection.title.split(" ").map((word, i) => (
+                <Fragment key={i}>
+                  {i > 0 && " "}
+                  <span className={styles.initial}>{word[0]}</span>
+                  <span className={styles.fold}>
+                    <span className={styles.rest}>{word.slice(1)}</span>
+                  </span>
+                </Fragment>
+              ))}
+            </span>
+          </h2>
         </header>
 
         <div className={styles.tree}>

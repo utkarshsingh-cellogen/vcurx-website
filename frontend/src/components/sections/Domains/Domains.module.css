@@ -36,6 +36,35 @@
   letter-spacing: -0.015em;
 }
 
+/*
+ * The heading folds to its initials and unfolds again, after the Anthropic wordmark.
+ * Each word is its first letter and the rest, and the rest sits in a one-column inline
+ * grid whose column runs from 0fr to 1fr: at 0fr it takes no room, at 1fr exactly the
+ * room its letters need, so the words open out from the centre at their true widths.
+ * This is the unfolded state; the motion itself is under the scroll rules below.
+ */
+.fold {
+  display: inline-grid;
+  grid-template-columns: 1fr;
+}
+
+.rest {
+  min-width: 0;
+  /* Clip only sideways, so a descender such as the g in Intelligence still shows. */
+  overflow-x: clip;
+  overflow-clip-margin: 0.2em;
+  white-space: nowrap;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 /* ---------- the tree: domain › group › products ---------- */
 /*
  * Three fixed columns shared by every domain, so all the domain cards stand in one
@@ -387,9 +416,17 @@
   @media (prefers-reduced-motion: no-preference) {
     .header {
       --rise: 10vh;
+      view-timeline: --title block;
       animation: rise linear both;
       animation-timeline: view();
       animation-range: entry 0% cover 42%;
+    }
+
+    /* Initials as it arrives, the whole words by the middle of the screen, initials again as it leaves. */
+    .fold {
+      animation: unfold linear both;
+      animation-timeline: --title;
+      animation-range: cover;
     }
 
     .domain {
@@ -553,6 +590,25 @@
   100% {
     scale: 1;
     box-shadow: 0 0 10px color-mix(in srgb, var(--domain) 85%, transparent);
+  }
+}
+
+/* On the heading's cover range: folded, opening, open through the middle, folding. */
+@keyframes unfold {
+  0%,
+  22% {
+    grid-template-columns: 0fr;
+    opacity: 0;
+  }
+  46%,
+  60% {
+    grid-template-columns: 1fr;
+    opacity: 1;
+  }
+  84%,
+  100% {
+    grid-template-columns: 0fr;
+    opacity: 0;
   }
 }
 
