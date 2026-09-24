@@ -1,17 +1,20 @@
-import type { CSSProperties } from "react";
 import { domainsSection } from "@/config/content";
-import { domains, groupedProducts, logoFor, photoFor } from "@/data/products";
+import { domains } from "@/data/products";
 import { DeepSpace } from "@/components/effects/DeepSpace";
 import { MobileDomainList } from "@/components/ui/MobileDomainList";
-import { Deck } from "@/components/ui/Deck";
+import { GalaxyRow, type GalaxyItem } from "@/components/ui/GalaxyRow";
 import styles from "./Domains.module.css";
 
+const items: readonly GalaxyItem[] = domains.map((domain) => ({
+  key: domain.slug,
+  name: domain.shortName ?? domain.name,
+  href: `/domains/${domain.slug}`,
+  accent: domain.accent,
+}));
+
 /**
- * The stop after Delhi: VcurX AI's four domains as a tree. Each domain's card sits on
- * the left and a line runs from it to every one of its products, forking once per
- * group with the group's name on the branch. The domain cards drift slower than their
- * products as the page scrolls, so each domain holds while its products pass. Small
- * screens get the plain list instead, which already nests products under domains.
+ * The stop after Delhi: VcurX AI and its four domains, as a row of turning galaxies
+ * on desktop and as a plain list on small screens.
  */
 export function Domains() {
   return (
@@ -23,66 +26,7 @@ export function Domains() {
           <h2 id="domains-title" className={styles.title}>{domainsSection.title}</h2>
         </header>
 
-        <div className={styles.tree}>
-          {domains.map((domain) => (
-            <section
-              key={domain.slug}
-              className={styles.domain}
-              aria-label={domain.name}
-              style={{ "--domain": `var(${domain.accent})` } as CSSProperties}
-            >
-              <div className={styles.parent}>
-                <Deck
-                  layout="grid"
-                  narrow="hide"
-                  items={[
-                    {
-                      key: domain.slug,
-                      image: photoFor(domain.slug),
-                      sizes: "240px",
-                      name: domain.shortName ?? domain.name,
-                      href: `/domains/${domain.slug}`,
-                      accent: domain.accent,
-                    },
-                  ]}
-                />
-                {domain.subLayer && <span className={styles.subLayer}>{domain.subLayer}</span>}
-              </div>
-
-              <div className={styles.branches}>
-                {groupedProducts(domain).map((group, i) => (
-                  <div key={group.name ?? `group-${i}`} className={styles.branch}>
-                    <div className={styles.link}>
-                      <span className={styles.wire} aria-hidden="true" />
-                      {group.name && (
-                        <>
-                          <span className={styles.groupName}>{group.name}</span>
-                          <span className={styles.wire} aria-hidden="true" />
-                        </>
-                      )}
-                    </div>
-
-                    <Deck
-                      layout="grid"
-                      narrow="hide"
-                      className={styles.products}
-                      items={group.products.map((product) => ({
-                        key: product.slug,
-                        image: photoFor(product.slug),
-                        logo: logoFor(product),
-                        sizes: "180px",
-                        name: product.name,
-                        href: `/products/${product.slug}`,
-                        accent: domain.accent,
-                      }))}
-                    />
-                  </div>
-                ))}
-              </div>
-            </section>
-          ))}
-        </div>
-
+        <GalaxyRow items={items} narrow="hide" className={styles.galaxies} />
         <MobileDomainList />
       </div>
     </section>

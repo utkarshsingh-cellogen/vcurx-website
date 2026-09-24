@@ -54,3 +54,22 @@
 @media (prefers-reduced-motion: reduce) {
   .canvas { filter: none; transform: none; }
 }
+
+/*
+ * Side framing: the shader always centres the planet in its canvas, so the canvas is
+ * made 150% wide from the left edge. Its centre, and the planet, land at 75% across,
+ * beside the text; the stars simply fill the extra width off screen.
+ */
+.root[data-framing="side"] .canvas {
+  width: 150%;
+}
+
+.root[data-framing="side"] .fallback {
+  background-position: 75% 50%;
+}
+
+@media (max-width: 767px) {
+  .root[data-framing="side"] .canvas {
+    width: 100%;
+  }
+}

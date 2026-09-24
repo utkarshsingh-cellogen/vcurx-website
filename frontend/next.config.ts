@@ -4,10 +4,8 @@ const isDev = process.env.NODE_ENV === "development";
 
 /**
  * `script-src` keeps 'unsafe-inline' deliberately. Next streams the RSC payload
- * through inline scripts, and the root layout parks the home page's scroll
- * restoration in one of its own, so a nonce-based policy would need middleware
- * running per request — which would turn all 27 statically generated pages
- * dynamic. The rest is locked down, so an injected script still cannot reach a
+ * through inline scripts, so a nonce-based policy would need middleware running
+ * per request — which would turn all 27 statically generated pages dynamic. The rest is locked down, so an injected script still cannot reach a
  * plugin, rewrite the document base, or frame the site.
  *
  * 'unsafe-eval' is added in development only: React's dev build uses eval() to

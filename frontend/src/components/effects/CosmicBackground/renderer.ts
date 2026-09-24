@@ -4,13 +4,17 @@ import {
   FULLSCREEN_VERTEX_SHADER,
   loadTexture,
 } from "@/lib/webgl";
-import { earthCamera } from "./camera";
+import { earthCamera, sideCamera } from "./camera";
 import { fragmentShader } from "./shaders";
 
 type RendererOptions = {
   still: boolean;
   onReady: () => void;
   getScrollProgress: () => number;
+  /** `journey` flies Earth to Delhi on scroll; `side` holds the whole Earth, turning. */
+  framing: "journey" | "side";
+  /** Side framing only: how large the Earth is drawn, 1 for full size, 0 to hide it. */
+  getEarthScale: () => number;
 };
 
 const MAX_PIXEL_RATIO = 1.5;
@@ -41,7 +45,7 @@ function detailTextureSize(gl: WebGLRenderingContext): 2048 | 4096 {
 
 export function createCosmosRenderer(
   canvas: HTMLCanvasElement,
-  { still, onReady, getScrollProgress }: RendererOptions,
+  { still, onReady, getScrollProgress, framing, getEarthScale }: RendererOptions,
 ): (() => void) | null {
   const gl = canvas.getContext("webgl", { antialias: false, alpha: false });
   if (!gl) return null;
@@ -103,7 +107,10 @@ export function createCosmosRenderer(
     // invisible, so stop paying for it — this is also exactly when the visitor
     // is reading the destination and would feel any jank.
     if (ready && scroll >= 0.85) return;
-    const camera = earthCamera(canvas.width / canvas.height, scroll, elapsed, still, rotationElapsed);
+    const aspect = canvas.width / canvas.height;
+    const camera = framing === "side"
+      ? sideCamera(aspect, still, rotationElapsed, getEarthScale())
+      : earthCamera(aspect, scroll, elapsed, still, rotationElapsed);
     const textureMix = texturesReadyAt === null ? 0 : still ? 1 : Math.min((now - texturesReadyAt) / TEXTURE_FADE_MS, 1);
     gl.uniform1f(uTime, still ? 20 : elapsed + 20);
     gl.uniform2f(uMouse, mouse.x, mouse.y);
