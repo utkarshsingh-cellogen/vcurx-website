@@ -50,6 +50,12 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
+  async redirects() {
+    return [
+      // Virtual Cell was renamed CytoTwin, after its logo; links to the old page still land.
+      { source: "/products/virtual-cell", destination: "/products/cytotwin", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;

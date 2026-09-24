@@ -99,7 +99,7 @@ export const products: readonly Product[] = [
   { name: "Antigen Discovery", slug: "antigen-discovery", domain: "research", group: "Discovery", status: "in-lab" },
   { name: "Single-cell Analysis", slug: "single-cell-analysis", domain: "research", group: "Discovery", status: "in-lab" },
   { name: "Spatiomic AI", slug: "spatiomic-ai", domain: "research", group: "Discovery", status: "in-lab", logo: { plate: "light", named: false } },
-  { name: "Virtual Cell", slug: "virtual-cell", domain: "research", group: "Discovery", status: "in-lab", logo: { plate: "light", named: false } }, // The logo reads "CytoTwin", so the card keeps the product's name.
+  { name: "CytoTwin", slug: "cytotwin", domain: "research", group: "Discovery", status: "in-lab", logo: { plate: "light", named: true } },
 
   // Clinical › AI-Doctor › Patient Care
   { name: "Response Prediction", slug: "response-prediction", domain: "clinical", group: "Patient Care", status: "in-lab", logo: { plate: "light", named: false } },
