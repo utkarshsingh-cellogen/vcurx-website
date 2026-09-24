@@ -1,6 +1,9 @@
-/** Shared by the pinned destination's CSS fade and its animation trigger. */
-export const DESTINATION_VISIBLE_AT = 0.64;
-export const DESTINATION_READY_AT = 0.84;
+/**
+ * Shared by the pinned destination's CSS fade and its animation trigger. Early in a
+ * short journey, so the words come up while the globe is still settling behind them.
+ */
+export const DESTINATION_VISIBLE_AT = 0.42;
+export const DESTINATION_READY_AT = 0.78;
 export type DestinationPhase = "hidden" | "arriving" | "ready";
 
 export function destinationPhase(previous: DestinationPhase, progress: number): DestinationPhase {

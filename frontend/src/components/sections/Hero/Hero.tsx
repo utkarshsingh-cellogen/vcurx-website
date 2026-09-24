@@ -15,9 +15,9 @@ export function Hero() {
       destination={<PlanetSwitch content={toEarth} tone="earth" embedded />}
       destinationClassName={styles.destination}>
       <CosmicBackground />
-      <p className={styles.description}>Scroll from Earth into India, then enter Delhi to continue exploring.</p>
+      <p className={styles.description}>Scroll to pull back from Earth to the whole globe and continue exploring.</p>
 
-      {/* Fades and lifts away as the planet approaches on scroll */}
+      {/* Fades and lifts away as the planet pulls back on scroll */}
       <div className={styles.scrollAway}>
         <Parallax className={styles.content}>
           <AnimatedHeadline

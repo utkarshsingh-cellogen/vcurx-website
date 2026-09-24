@@ -16,7 +16,7 @@ type RendererOptions = {
 const MAX_PIXEL_RATIO = 1.5;
 const TEXTURE_FADE_MS = 1200;
 
-/** A scroll-driven camera carries the opening Earth scene into the destination. */
+/** A scroll-driven camera pulls the opening Earth back into a whole globe behind the destination. */
 /**
  * Which regional-detail crop to fetch. GPU capability is the wrong question —
  * every modern phone reports MAX_TEXTURE_SIZE well above 4096, so that test
@@ -98,11 +98,8 @@ export function createCosmosRenderer(
     // visible frames so a slow texture download or background tab cannot skip it.
     if (texturesReadyAt !== null) rotationElapsed += delta / 1000;
     scroll = still ? getScrollProgress() : scroll + (getScrollProgress() - scroll) * ease;
-    // Hero.module.css drives --arrival to 1 at progress 0.84, which makes the
-    // stage's black overlay fully opaque. Everything drawn past that point is
-    // invisible, so stop paying for it — this is also exactly when the visitor
-    // is reading the destination and would feel any jank.
-    if (ready && scroll >= 0.85) return;
+    // The globe stays on screen behind the destination, dimmed, so it is drawn for as
+    // long as the stage is; the IntersectionObserver below parks the loop once it scrolls away.
     const camera = earthCamera(canvas.width / canvas.height, scroll, elapsed, still, rotationElapsed);
     const textureMix = texturesReadyAt === null ? 0 : still ? 1 : Math.min((now - texturesReadyAt) / TEXTURE_FADE_MS, 1);
     gl.uniform1f(uTime, still ? 20 : elapsed + 20);

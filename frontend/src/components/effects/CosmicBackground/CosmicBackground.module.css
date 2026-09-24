@@ -34,16 +34,13 @@
   height: 100%;
   opacity: 0;
   transition: opacity 1s var(--ease-out);
-  filter: blur(calc(var(--arrival, 0) * 7px));
   /*
-   * The map keeps moving while the journey is held over Delhi — a slow push-in — so the
-   * pause reads as lingering rather than stuck. Then, as the destination rises in front,
-   * the map lifts away more slowly than it does: the far layer of the parallax. It grows
-   * faster than it lifts, so its bottom edge never comes into view.
+   * As the destination arrives the globe becomes its shadow: it drains of colour and
+   * softens a touch while the stage's dark veil (Hero.module.css) dims it, and it sinks
+   * back a little, so it reads as behind the words rather than beside them.
    */
-  transform:
-    translate3d(0, calc(var(--arrival, 0) * -7vh), 0)
-    scale(calc(1 + var(--hold-progress, 0) * 0.06 + var(--arrival, 0) * 0.12));
+  filter: saturate(calc(1 - var(--arrival, 0) * 0.65)) blur(calc(var(--arrival, 0) * 1.2px));
+  transform: scale(calc(1 - var(--arrival, 0) * 0.05));
 }
 
 .ready {

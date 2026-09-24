@@ -7,7 +7,8 @@ import { createCosmosRenderer } from "./renderer";
 import styles from "./CosmicBackground.module.css";
 
 /**
- * Earth rises from the bottom of a starfield, then turns and zooms toward Delhi, India on scroll.
+ * Earth rises from the bottom of a starfield, then pulls back on scroll into the whole
+ * globe, which stays behind the destination as a faint shadow of itself.
  * Falls back to a static CSS scene without WebGL.
  */
 export function CosmicBackground() {
