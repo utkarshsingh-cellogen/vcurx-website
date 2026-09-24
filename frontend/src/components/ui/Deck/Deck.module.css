@@ -45,6 +45,34 @@
 }
 
 /*
+ * The `grid` layout: the same cards set square in rows, for a caller that needs them to
+ * line up with something else. The caller sizes the columns through `--deck-min` and the
+ * spacing through `--deck-gap`. A raised card lifts less, since it has no fan to clear.
+ * Kept above the narrow rules below, so `narrow="hide"` still wins on small screens.
+ */
+.deck[data-layout="grid"] {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(var(--deck-min, 188px), 100%), 1fr));
+  align-items: start;
+  gap: var(--deck-gap, clamp(14px, 2.4vw, 22px));
+  padding: 0;
+}
+
+.deck[data-layout="grid"] > [data-state] {
+  width: 100%;
+  margin-left: 0;
+}
+
+.deck[data-layout="grid"] > [data-state="active"] {
+  --lift: -10px;
+  --scale: 1.04;
+}
+
+.deck[data-layout="grid"] > [data-state="recede"] {
+  --scale: 0.97;
+}
+
+/*
  * Narrow and short viewports cannot hold a fan of overlapping cards. `grid` lays the
  * same cards out flat with no choreography; `hide` steps aside for a caller that has
  * its own small-screen layout.
@@ -72,7 +100,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .deck > [data-state] {
+  .deck > [data-state],
+  .deck[data-layout="grid"] > [data-state] {
     --lift: 0px;
     --push: 0px;
     --scale: 1;

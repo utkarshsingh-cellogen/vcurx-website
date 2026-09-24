@@ -3,23 +3,14 @@ import { domainsSection } from "@/config/content";
 import { domains, groupedProducts, logoFor, photoFor } from "@/data/products";
 import { DeepSpace } from "@/components/effects/DeepSpace";
 import { MobileDomainList } from "@/components/ui/MobileDomainList";
-import { Deck, type DeckItem } from "@/components/ui/Deck";
+import { Deck } from "@/components/ui/Deck";
 import styles from "./Domains.module.css";
 
-/** The same photographs the domain pages open with, so the deck and the page agree. */
-const domainItems: readonly DeckItem[] = domains.map((domain) => ({
-  key: domain.slug,
-  image: photoFor(domain.slug),
-  /* The fan is hidden below 1024px, so only the desktop width is worth fetching. */
-  sizes: "270px",
-  name: domain.shortName ?? domain.name,
-  href: `/domains/${domain.slug}`,
-  accent: domain.accent,
-}));
-
 /**
- * The stop after Delhi: VcurX AI's four domains as a fanned card deck, and under it
- * every domain's products, group by group, as the domain pages lay them out. Small
+ * The stop after Delhi: VcurX AI's four domains as a tree. Each domain's card sits on
+ * the left and a line runs from it to every one of its products, forking once per
+ * group with the group's name on the branch. The domain cards drift slower than their
+ * products as the page scrolls, so each domain holds while its products pass. Small
  * screens get the plain list instead, which already nests products under domains.
  */
 export function Domains() {
@@ -32,38 +23,62 @@ export function Domains() {
           <h2 id="domains-title" className={styles.title}>{domainsSection.title}</h2>
         </header>
 
-        <Deck items={domainItems} narrow="hide" className={styles.deck} />
-
-        <div className={styles.catalog}>
+        <div className={styles.tree}>
           {domains.map((domain) => (
             <section
               key={domain.slug}
               className={styles.domain}
-              aria-labelledby={`catalog-${domain.slug}`}
+              aria-label={domain.name}
               style={{ "--domain": `var(${domain.accent})` } as CSSProperties}
             >
-              <header className={styles.domainHead}>
-                <h3 id={`catalog-${domain.slug}`} className={styles.domainName}>{domain.name}</h3>
-                {domain.subLayer && <span className={styles.subLayer}>{domain.subLayer}</span>}
-              </header>
-
-              {groupedProducts(domain).map((group, i) => (
-                <div key={group.name ?? `group-${i}`} className={styles.group}>
-                  {group.name && <p className={styles.groupTitle}>{group.name}</p>}
-                  <Deck
-                    narrow="hide"
-                    items={group.products.map((product) => ({
-                      key: product.slug,
-                      image: photoFor(product.slug),
-                      logo: logoFor(product),
-                      sizes: "270px",
-                      name: product.name,
-                      href: `/products/${product.slug}`,
+              <div className={styles.parent}>
+                <Deck
+                  layout="grid"
+                  narrow="hide"
+                  items={[
+                    {
+                      key: domain.slug,
+                      image: photoFor(domain.slug),
+                      sizes: "240px",
+                      name: domain.shortName ?? domain.name,
+                      href: `/domains/${domain.slug}`,
                       accent: domain.accent,
-                    }))}
-                  />
-                </div>
-              ))}
+                    },
+                  ]}
+                />
+                {domain.subLayer && <span className={styles.subLayer}>{domain.subLayer}</span>}
+              </div>
+
+              <div className={styles.branches}>
+                {groupedProducts(domain).map((group, i) => (
+                  <div key={group.name ?? `group-${i}`} className={styles.branch}>
+                    <div className={styles.link}>
+                      <span className={styles.wire} aria-hidden="true" />
+                      {group.name && (
+                        <>
+                          <span className={styles.groupName}>{group.name}</span>
+                          <span className={styles.wire} aria-hidden="true" />
+                        </>
+                      )}
+                    </div>
+
+                    <Deck
+                      layout="grid"
+                      narrow="hide"
+                      className={styles.products}
+                      items={group.products.map((product) => ({
+                        key: product.slug,
+                        image: photoFor(product.slug),
+                        logo: logoFor(product),
+                        sizes: "180px",
+                        name: product.name,
+                        href: `/products/${product.slug}`,
+                        accent: domain.accent,
+                      }))}
+                    />
+                  </div>
+                ))}
+              </div>
             </section>
           ))}
         </div>

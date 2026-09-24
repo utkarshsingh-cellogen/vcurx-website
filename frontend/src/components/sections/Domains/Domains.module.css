@@ -18,7 +18,8 @@
   display: grid;
   gap: clamp(24px, 4vh, 48px);
   width: 100%;
-  max-width: 1160px;
+  /* Wide enough for a domain card, its branch and a row of five products. */
+  max-width: 1280px;
 }
 
 .header {
@@ -35,48 +36,44 @@
   letter-spacing: -0.015em;
 }
 
-/* ---------- every domain's products, under the deck ---------- */
-.catalog {
+/* ---------- the tree: domain › group › products ---------- */
+/*
+ * Three fixed columns shared by every domain, so all the domain cards stand in one
+ * column and every row of products starts at the same edge. `--stem` is where the
+ * spine runs, measured from the domain card's edge.
+ */
+.tree {
+  --parent-w: clamp(196px, 18vw, 240px);
+  --link-w: 176px;
+  --stem: 28px;
+  --wire-w: 1.5px;
   display: grid;
-  /* Stops a deck wider than the column from stretching it. */
   grid-template-columns: minmax(0, 1fr);
-  gap: clamp(56px, 9vh, 104px);
+  gap: clamp(72px, 12vh, 128px);
   margin-top: clamp(24px, 5vh, 56px);
 }
 
 .domain {
+  /* The accents are muted mid-tones that sink into the black, so the wire is lifted
+     toward paper white first, then only slightly thinned. */
+  --wire: color-mix(in srgb, color-mix(in srgb, var(--domain) 70%, #f4f1ea) 78%, transparent);
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: clamp(10px, 2vh, 22px);
-}
-
-.domainHead {
-  display: flex;
-  flex-wrap: wrap;
+  grid-template-columns: var(--parent-w) minmax(0, 1fr);
   align-items: center;
-  justify-content: center;
-  gap: 12px 16px;
-  text-align: center;
 }
 
-/* A lit dot in the domain's colour, the same marker the domain page's chips carry. */
-.domainHead::before {
-  content: "";
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--domain) 72%, #f4f1ea);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--domain) 85%, transparent);
+.parent {
+  position: relative;
+  /* One card, the full width of its column. */
+  --deck-min: 100%;
 }
 
-.domainName {
-  font-family: var(--font-display);
-  font-size: clamp(24px, 3vw, 36px);
-  font-weight: 400;
-  letter-spacing: -0.015em;
-}
-
+/* The layer the domain's products sit under, hung below its card. */
 .subLayer {
+  position: absolute;
+  top: calc(100% + 14px);
+  left: 50%;
+  translate: -50% 0;
   padding: 7px 14px;
   border: 1px solid color-mix(in srgb, var(--domain) 42%, transparent);
   border-radius: 999px;
@@ -86,73 +83,214 @@
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.14em;
+  white-space: nowrap;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--domain) 38%, #f4f1ea);
 }
 
-.group {
+.branches {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
 }
 
-/* A rule either side, so the label sits in the middle of the deck it names. */
-.groupTitle {
+/*
+ * The stem, from the domain card's edge to the spine. Both columns are centred in the
+ * row, so the middle of the branches is the middle of the card, and it is always on the
+ * spine: the spine runs from the first branch's middle to the last one's.
+ */
+.branches::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: var(--stem);
+  border-top: var(--wire-w) solid var(--wire);
+}
+
+.branch {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--link-w) minmax(0, 1fr);
+  align-items: center;
+  /* Padding rather than a gap, so each branch's stretch of spine meets the next. */
+  padding-block: clamp(10px, 1.6vh, 16px);
+}
+
+/* The spine: each branch draws its own stretch, so it forks at every group. */
+.branch::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--stem);
+  border-left: var(--wire-w) solid var(--wire);
+}
+
+.branch:first-child::before {
+  top: 50%;
+}
+
+.branch:last-child::before {
+  bottom: 50%;
+}
+
+.branch:only-child::before {
+  display: none;
+}
+
+/* The branch itself: a wire from the spine, the group's name on it, and a lit node where it reaches the products. */
+.link {
   display: flex;
   align-items: center;
-  gap: clamp(16px, 2.5vw, 32px);
+  gap: 8px;
+  padding: 0 10px 0 var(--stem);
+}
+
+.wire {
+  flex: 1;
+  min-width: 12px;
+  border-top: var(--wire-w) solid var(--wire);
+}
+
+.wire:first-child:not(:last-child) {
+  flex: 0 0 12px;
+}
+
+.link::after {
+  content: "";
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--domain) 72%, #f4f1ea);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--domain) 85%, transparent);
+}
+
+.groupName {
+  padding: 6px 11px;
+  border: 1px solid color-mix(in srgb, var(--domain) 34%, transparent);
+  border-radius: 999px;
+  background: rgba(10, 13, 20, 0.62);
   font-family: var(--font-mono);
-  font-size: clamp(13px, 1.2vw, 16px);
-  /* The tracking adds a trailing gap, so nudge the label back into the middle. */
-  letter-spacing: 0.18em;
-  text-indent: 0.18em;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
   text-transform: uppercase;
   color: var(--ink-soft);
 }
 
-.groupTitle::before,
-.groupTitle::after {
-  content: "";
-  flex: 1;
-  border-top: 1px solid var(--line);
+.products {
+  --deck-min: 140px;
+  --deck-gap: 12px;
 }
 
-/* The decks inside step aside here, so their headings go with them and the list takes over. */
+/*
+ * Below 1280px a name on the wire costs a row of five its room. The name moves up to
+ * sit over its row, the branch shrinks to a short wire, and the cards narrow with the
+ * screen so a group of five still fits on one line. The name adds height above the row
+ * only, so the row sits `--label-h / 2` below the branch's middle, and the spine's ends
+ * move down with it to meet the wires.
+ */
+@media (max-width: 1279px) {
+  .tree {
+    --link-w: 56px;
+    --label-h: 34px;
+  }
+
+  .branch:has(.groupName) {
+    padding-top: calc(clamp(10px, 1.6vh, 16px) + var(--label-h));
+  }
+
+  .branch:has(.groupName):first-child::before {
+    top: calc(50% + var(--label-h) / 2);
+  }
+
+  .branch:has(.groupName):last-child::before {
+    bottom: calc(50% - var(--label-h) / 2);
+  }
+
+  .groupName {
+    position: absolute;
+    top: clamp(10px, 1.6vh, 16px);
+    left: var(--link-w);
+  }
+
+  .wire:first-child:not(:last-child) {
+    flex: 1;
+  }
+
+  .groupName + .wire {
+    display: none;
+  }
+
+  .products {
+    --deck-min: clamp(118px, 12vw, 150px);
+  }
+}
+
+/* The decks inside step aside here, so the tree goes with them and the list takes over. */
 @media (max-width: 1023px), (max-height: 640px) {
-  .catalog {
+  .tree {
     display: none;
   }
 }
 
 /*
- * As the interlude above scrolls away, this section rises to meet it: the heading and
- * the deck each close a different distance over the same stretch of scroll, so they
- * arrive as two layers rather than one sheet. Each domain's heading and decks then rise
- * a little as they come into view. Scroll-driven, so it runs on the compositor with no
- * script; browsers without view timelines simply skip it.
+ * Scroll-driven, so all of it runs on the compositor with no script; browsers without
+ * view timelines simply show the tree still.
+ *
+ * The heading rises to meet the interlude above as it scrolls away. Each domain fades
+ * in as it arrives, and then the parallax: the domain card sits deeper and drifts
+ * against the scroll, so it holds while its products pass, and each product sits a
+ * little nearer, each column at its own depth. Every layer crosses zero at the middle
+ * of the screen, so a row lines up exactly where it is read. It moves `translate`, not
+ * `transform`, so the cards keep their own lift when raised.
  */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    .header,
-    .deck {
+    .header {
+      --rise: 10vh;
       animation: rise linear both;
       animation-timeline: view();
       animation-range: entry 0% cover 42%;
     }
 
-    .header {
-      --rise: 10vh;
-    }
-
-    .deck {
-      --rise: 24vh;
-    }
-
-    .domainHead,
-    .group {
-      --rise: 6vh;
-      animation: rise linear both;
+    .domain {
+      animation: arrive linear both;
       animation-timeline: view();
-      animation-range: entry 10% cover 30%;
+      animation-range: entry 0% entry 320px;
+    }
+
+    .parent,
+    .products > [data-state] {
+      animation: depth linear both;
+      animation-timeline: view();
+      animation-range: cover;
+    }
+
+    .parent {
+      --depth: -56px;
+    }
+
+    .products > [data-state] {
+      --depth: 14px;
+    }
+
+    .products > :nth-child(5n + 2) {
+      --depth: 32px;
+    }
+
+    .products > :nth-child(5n + 3) {
+      --depth: 22px;
+    }
+
+    .products > :nth-child(5n + 4) {
+      --depth: 40px;
+    }
+
+    .products > :nth-child(5n) {
+      --depth: 26px;
     }
   }
 }
@@ -165,6 +303,25 @@
   to {
     opacity: 1;
     transform: none;
+  }
+}
+
+@keyframes arrive {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* A positive depth is nearer: it starts low and overtakes the scroll. A negative one lags. */
+@keyframes depth {
+  from {
+    translate: 0 var(--depth);
+  }
+  to {
+    translate: 0 calc(var(--depth) * -1);
   }
 }
 
