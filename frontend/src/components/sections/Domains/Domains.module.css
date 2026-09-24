@@ -12,6 +12,26 @@
   background: var(--bg);
 }
 
+/*
+ * The sky is one screen tall and rides down the section, stuck to the viewport, rather
+ * than stretched over all four scenes. Stretched, its photograph, star tiles and drift
+ * were layers thousands of pixels tall, repainted and recomposited as the scenes moved
+ * over them; one screen of it looks the same and costs a fraction.
+ */
+.skyTrack {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.skyTrack .sky {
+  position: sticky;
+  inset: auto;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+}
+
 .inner {
   position: relative;
   z-index: 1;
@@ -132,9 +152,8 @@
   padding: 7px 14px;
   border: 1px solid color-mix(in srgb, var(--domain) 42%, transparent);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--domain) 14%, rgba(10, 13, 20, 0.5));
-  backdrop-filter: blur(12px) saturate(140%);
-  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  /* A solid tint, not a blur: this chip moves with its card, see the note on the cards below. */
+  background: color-mix(in srgb, var(--domain) 16%, rgba(10, 13, 20, 0.86));
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.14em;
@@ -271,6 +290,27 @@
 }
 
 /*
+ * Cards in the tree move on every scroll frame, and so do the photographs inside them,
+ * and a backdrop blur must be redrawn each time what lies behind it moves: with the
+ * smoked foot and the pill on all twenty-two cards, that cost the section a sixth of
+ * its frame rate. Here they are solid tints of the same weight instead. The domain
+ * pages, where the cards stand still, keep the blur.
+ */
+.domain [data-state]::before,
+.domain [data-state] footer > * {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.domain [data-state]:not([data-plate="light"])::before {
+  background: linear-gradient(to top, rgba(5, 7, 12, 0.86), rgba(5, 7, 12, 0.42) 58%, transparent);
+}
+
+.domain [data-state] footer > * {
+  background: rgba(10, 13, 20, 0.8);
+}
+
+/*
  * Below 1280px a name on the wire costs a row of five its room. The name moves up to
  * sit over its row, the branch shrinks to a short wire, and the cards narrow with the
  * screen so a group of five still fits on one line. The name adds height above the row
@@ -389,6 +429,27 @@
   .domain:has(.parent :focus-visible) .link::after,
   .branch:has(:focus-visible) .link::after {
     animation: flare 1.8s var(--ease-out) infinite;
+  }
+}
+
+/*
+ * Past 2000px the tree grows with the screen rather than sitting small in the middle of
+ * it: a wider column, a larger domain card and branch, and products that stay five to a
+ * row at about 225px on a 2560px screen.
+ */
+@media (min-width: 2000px) {
+  .inner {
+    max-width: 1680px;
+  }
+
+  .tree {
+    --parent-w: 300px;
+    --link-w: 200px;
+  }
+
+  .products {
+    --deck-min: 190px;
+    --deck-gap: 16px;
   }
 }
 

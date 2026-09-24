@@ -1,4 +1,4 @@
-/** Earth rising in space, with a scroll-driven camera that settles over Delhi. */
+/** Earth rising in space, with a scroll-driven camera that pulls back to the whole globe. */
 export const fragmentShader = /* glsl */ `
   precision highp float;
   uniform vec2 uRes;
@@ -6,13 +6,14 @@ export const fragmentShader = /* glsl */ `
   uniform vec2 uMouse;
   uniform sampler2D uColorMap;
   uniform sampler2D uCloudMap;
-  uniform sampler2D uDetailMap;
-  uniform float uDetailMix;
   uniform float uTexMix;
   uniform float uRadius;
   uniform float uCenterY;
   uniform vec2 uOrientation; // longitude, latitude in radians
   uniform float uApproach;
+  // 0 to 1 as the globe becomes the destination's shadow: drains it of colour here,
+  // where it costs nothing, instead of a CSS filter re-run over the whole canvas each frame.
+  uniform float uGhost;
   const float PI = 3.14159265;
 
   float hash21(vec2 p) {
@@ -115,14 +116,6 @@ export const fragmentShader = /* glsl */ `
       float cloud = 0.0;
       if (uTexMix > 0.0) {
         day = mix(day, texture2D(uColorMap, uv).rgb, uTexMix);
-        // Regional NASA imagery: 35°E–120°E, 10°S–75°N.
-        // Geographic UVs keep the high-resolution layer registered to the globe.
-        vec2 degrees = vec2((uv.x - 0.5) * 360.0, (0.5 - uv.y) * 180.0);
-        vec2 detailUV = vec2((degrees.x - 35.0) / 85.0, (75.0 - degrees.y) / 85.0);
-        vec2 edge = min(detailUV, 1.0 - detailUV);
-        float coverage = smoothstep(0.0, 0.06, min(edge.x, edge.y));
-        float detailMix = coverage * uDetailMix * smoothstep(0.1, 0.55, uApproach);
-        day = mix(day, texture2D(uDetailMap, clamp(detailUV, 0.0, 1.0)).rgb, detailMix);
         cloud = texture2D(uCloudMap, uv + vec2(t * 0.0006, 0.0)).r * uTexMix;
       }
       // Keep India's geography clear as the camera arrives.
@@ -178,6 +171,7 @@ export const fragmentShader = /* glsl */ `
     vec2 uv = gl_FragCoord.xy / uRes;
     col *= 1.0 - 0.18 * pow(length((uv - 0.5) * vec2(1.0, 1.15)), 2.0);
     col = 1.0 - exp(-col * 1.25);
+    col = mix(col, vec3(dot(col, vec3(0.299, 0.587, 0.114))), 0.65 * uGhost);
     gl_FragColor = vec4(col, 1.0);
   }
 `;

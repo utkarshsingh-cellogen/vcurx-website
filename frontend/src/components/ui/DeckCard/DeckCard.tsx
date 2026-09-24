@@ -109,7 +109,7 @@ export function DeckCard({
 
       <footer className={styles.foot}>
         {!href ? (
-          <span className={`${styles.cta} ${styles.ctaPending}`}>Link coming soon</span>
+          <span className={`${styles.cta} ${styles.ctaPending}`}>Coming soon</span>
         ) : external ? (
           <a href={href} target="_blank" rel="noopener noreferrer" className={styles.cta}>
             {cta}

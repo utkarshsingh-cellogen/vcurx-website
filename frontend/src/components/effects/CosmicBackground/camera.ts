@@ -37,9 +37,13 @@ export function earthCamera(aspect: number, progress: number, elapsed: number, s
   const top = mix(-0.04, -0.11, clamp((aspect - 0.6) / 1.0, 0, 1)) - (1 - rise) * 0.45;
   const globe = globeFrame(aspect);
 
+  // The same span as `--arrival` in Hero.module.css: the globe becomes the destination's
+  // shadow, draining of colour and sinking back a little behind the words.
+  const ghost = clamp((progress - 0.35) / 0.4, 0, 1);
+
   // The radius and the centre move together, so the horizon rises as it shrinks into a
   // globe rather than the planet sliding up behind a fixed edge.
-  const radius = mix(initialRadius, globe.radius, pull);
+  const radius = mix(initialRadius, globe.radius, pull) * (1 - 0.05 * ghost);
   const centerY = mix(top - initialRadius, globe.centerY, pull);
 
   const turn = still ? 1 : clamp((rotationElapsed - 0.35) / INTRO_ROTATION_SECONDS, 0, 1);
@@ -51,5 +55,5 @@ export function earthCamera(aspect: number, progress: number, elapsed: number, s
   // without the opening's dark lower half, which would shade half the globe.
   const approach = mix(0, 0.7, pull);
 
-  return { radius, centerY, longitude, latitude, approach };
+  return { radius, centerY, longitude, latitude, approach, ghost };
 }

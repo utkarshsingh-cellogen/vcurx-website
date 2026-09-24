@@ -170,6 +170,112 @@
   }
 }
 
+/*
+ * The same motion on the hero track's view timeline (`--stage`, from ScrollStage), where
+ * the browser runs scroll-driven animations, so none of it waits on script. Each layer
+ * has two animations: its arrival over the journey (the first 70vh of the pinned span,
+ * as in Hero.module.css, with the destination's window of 42% to 78%), and its departure
+ * over the `exit` range as the stage scrolls away. The departure fills only forwards, so
+ * until the stage starts to leave it stands aside and the arrival holds.
+ */
+@supports (animation-timeline: view()) {
+  .embedded .stars,
+  .embedded .backdrop,
+  .embedded .center {
+    animation-timeline: --stage, --stage;
+    animation-range: contain 0 contain 70vh, exit 0% exit 100%;
+    animation-timing-function: linear;
+    animation-fill-mode: both, forwards;
+  }
+
+  .embedded .stars {
+    animation-name: stars-in, stars-out;
+  }
+
+  .embedded .backdrop {
+    animation-name: backdrop-in, backdrop-out;
+  }
+
+  .embedded .center {
+    animation-name: none, center-out;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .embedded .stars,
+    .embedded .backdrop {
+      animation-name: none;
+    }
+
+    .embedded .center {
+      animation-name: none, center-fade-out;
+    }
+  }
+}
+
+@keyframes stars-in {
+  0%,
+  42% {
+    transform: translate3d(0, 8vh, 0);
+  }
+  78%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes stars-out {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 40vh, 0);
+  }
+}
+
+@keyframes backdrop-in {
+  0%,
+  42% {
+    transform: translate3d(0, 22vh, 0) scale(1.18);
+  }
+  78%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes backdrop-out {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 26vh, 0);
+  }
+}
+
+@keyframes center-out {
+  0% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  66.7% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(0, -14vh, 0);
+  }
+}
+
+@keyframes center-fade-out {
+  0% {
+    opacity: 1;
+  }
+  66.7%,
+  100% {
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce), (scripting: none) {
   .section[data-sequence] .cta,
   .section[data-sequence] .ctaLabel {

@@ -16,29 +16,12 @@ type RendererOptions = {
 const MAX_PIXEL_RATIO = 1.5;
 const TEXTURE_FADE_MS = 1200;
 
-/** A scroll-driven camera pulls the opening Earth back into a whole globe behind the destination. */
 /**
- * Which regional-detail crop to fetch. GPU capability is the wrong question —
- * every modern phone reports MAX_TEXTURE_SIZE well above 4096, so that test
- * alone hands the largest crop to a 390px screen. What matters is how much
- * detail the display can resolve, and whether the connection can afford it.
+ * A scroll-driven camera pulls the opening Earth back into a whole globe behind the
+ * destination. The globe is only ever seen whole, so the base imagery is all it needs:
+ * the regional detail the Delhi zoom used is no longer fetched, which saved up to 4 MB
+ * and a mipmap build of 16.7M pixels on the main thread early in the page's life.
  */
-function detailTextureSize(gl: WebGLRenderingContext): 2048 | 4096 {
-  if (gl.getParameter(gl.MAX_TEXTURE_SIZE) < 4096) return 2048;
-
-  const connection = (navigator as Navigator & {
-    connection?: { saveData?: boolean; effectiveType?: string };
-  }).connection;
-  if (connection?.saveData) return 2048;
-  if (connection?.effectiveType && /2g|3g/.test(connection.effectiveType)) return 2048;
-
-  const ratio = Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO);
-  const devicePixels = Math.max(window.innerWidth, window.innerHeight) * ratio;
-  // The 4096 crop costs 3.9 MB and 16.7M pixels to decode, upload and mipmap.
-  // Below roughly 3200 device pixels the 2048 crop already out-resolves the view.
-  return devicePixels >= 3200 ? 4096 : 2048;
-}
-
 export function createCosmosRenderer(
   canvas: HTMLCanvasElement,
   { still, onReady, getScrollProgress }: RendererOptions,
@@ -54,20 +37,18 @@ export function createCosmosRenderer(
   const uTime = gl.getUniformLocation(program, "uTime");
   const uMouse = gl.getUniformLocation(program, "uMouse");
   const uTexMix = gl.getUniformLocation(program, "uTexMix");
-  const uDetailMix = gl.getUniformLocation(program, "uDetailMix");
   const uRadius = gl.getUniformLocation(program, "uRadius");
   const uCenterY = gl.getUniformLocation(program, "uCenterY");
   const uOrientation = gl.getUniformLocation(program, "uOrientation");
   const uApproach = gl.getUniformLocation(program, "uApproach");
+  const uGhost = gl.getUniformLocation(program, "uGhost");
   gl.uniform1i(gl.getUniformLocation(program, "uColorMap"), 0);
   gl.uniform1i(gl.getUniformLocation(program, "uCloudMap"), 1);
-  gl.uniform1i(gl.getUniformLocation(program, "uDetailMap"), 2);
 
   const colorTex = gl.createTexture();
   const cloudTex = gl.createTexture();
-  const detailTex = gl.createTexture();
   // Complete placeholder textures keep the initial frame valid before images load.
-  [colorTex, cloudTex, detailTex].forEach((texture, unit) => {
+  [colorTex, cloudTex].forEach((texture, unit) => {
     gl.activeTexture(gl.TEXTURE0 + unit);
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 1, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0]));
@@ -76,7 +57,6 @@ export function createCosmosRenderer(
 
   let destroyed = false;
   let texturesReadyAt: number | null = null;
-  let detailReadyAt: number | null = null;
   let frame = 0;
   let ready = false;
   let visible = true;
@@ -105,11 +85,11 @@ export function createCosmosRenderer(
     gl.uniform1f(uTime, still ? 20 : elapsed + 20);
     gl.uniform2f(uMouse, mouse.x, mouse.y);
     gl.uniform1f(uTexMix, textureMix);
-    gl.uniform1f(uDetailMix, detailReadyAt === null ? 0 : still ? 1 : Math.min((now - detailReadyAt) / TEXTURE_FADE_MS, 1));
     gl.uniform1f(uRadius, camera.radius);
     gl.uniform1f(uCenterY, camera.centerY);
     gl.uniform2f(uOrientation, camera.longitude, camera.latitude);
     gl.uniform1f(uApproach, camera.approach);
+    gl.uniform1f(uGhost, camera.ghost);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     if (!ready) {
       ready = true;
@@ -178,17 +158,8 @@ export function createCosmosRenderer(
     if (destroyed) return;
     texturesReadyAt = performance.now();
     scheduleStill();
-    // The globe appears first; regional detail loads without blocking its intro.
-    const detailSize = detailTextureSize(gl);
-    return loadTexture(gl, 2, detailTex, `/textures/earth-india-${detailSize}.webp`, gl.RGB,
-      () => !destroyed, { clampLongitude: true, mipmaps: true })
-      .then(() => {
-        if (destroyed) return;
-        detailReadyAt = performance.now();
-        scheduleStill();
-      });
   }).catch(() => {
-    // Keep the base imagery if regional detail fails, or the blue sphere if both fail.
+    // Keep the blue sphere if the imagery fails.
   });
 
   return () => {
@@ -202,7 +173,6 @@ export function createCosmosRenderer(
     resizeObserver.disconnect();
     gl.deleteTexture(colorTex);
     gl.deleteTexture(cloudTex);
-    gl.deleteTexture(detailTex);
     gl.deleteBuffer(buffer);
     gl.deleteProgram(program);
   };

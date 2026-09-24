@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { siteConfig } from "@/config/site";
+import { ScrollHoverPause } from "@/components/effects/ScrollHoverPause";
 import { displayFont, inter, mono } from "@/lib/fonts";
 import "./globals.css";
 
@@ -31,7 +32,7 @@ export const viewport: Viewport = {
 };
 
 /**
- * The home page is one 420vh scroll journey, so a restored scroll position drops the
+ * The home page opens on a pinned scroll journey, so a restored scroll position drops the
  * visitor mid-flight with nothing to orient them. Runs during parse, before the
  * browser gets to restore anything — an effect would restore first and then jump.
  *
@@ -49,7 +50,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: START_AT_TOP }} />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <ScrollHoverPause />
+      </body>
     </html>
   );
 }

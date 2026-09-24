@@ -16,7 +16,9 @@ import styles from "./Domains.module.css";
 export function Domains() {
   return (
     <section id={domainsSection.id} className={styles.section} aria-labelledby="domains-title">
-      <DeepSpace />
+      <div className={styles.skyTrack}>
+        <DeepSpace className={styles.sky} />
+      </div>
 
       <div className={styles.inner}>
         <header className={styles.header}>

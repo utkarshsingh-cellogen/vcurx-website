@@ -1,0 +1,1 @@
+export { ScrollHoverPause } from "./ScrollHoverPause";

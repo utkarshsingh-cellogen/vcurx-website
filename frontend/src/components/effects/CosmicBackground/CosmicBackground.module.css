@@ -35,19 +35,13 @@
   opacity: 0;
   transition: opacity 1s var(--ease-out);
   /*
-   * As the destination arrives the globe becomes its shadow: it drains of colour and
-   * softens a touch while the stage's dark veil (Hero.module.css) dims it, and it sinks
-   * back a little, so it reads as behind the words rather than beside them.
+   * No CSS filter or transform here: the globe fading into the destination's shadow is
+   * done in the shader (`uGhost`), and the stage's veil dims it. A filter on this canvas
+   * re-ran over every pixel of it on every frame, which alone cost the hero a third of
+   * its frame rate on integrated graphics.
    */
-  filter: saturate(calc(1 - var(--arrival, 0) * 0.65)) blur(calc(var(--arrival, 0) * 1.2px));
-  transform: scale(calc(1 - var(--arrival, 0) * 0.05));
 }
 
 .ready {
   opacity: 1;
-}
-
-
-@media (prefers-reduced-motion: reduce) {
-  .canvas { filter: none; transform: none; }
 }

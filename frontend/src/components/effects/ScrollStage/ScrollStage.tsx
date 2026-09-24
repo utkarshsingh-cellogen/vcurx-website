@@ -26,7 +26,8 @@ type ScrollStageProps = {
 
 /**
  * A tall section whose child "stage" stays pinned to the viewport while the user scrolls through it.
- * Progress is exposed as the CSS variable `--progress` (0–1) and via `useScrollProgressRef()`.
+ * Progress is exposed via `useScrollProgressRef()`, as the view timeline `--stage` for
+ * browsers that run scroll-driven animations, and otherwise as the CSS variable `--progress` (0–1).
  *
  * Two more variables drive scroll-linked motion outside the journey itself:
  * `--hold-progress` (0–1) runs while progress is paused at `--hold-at`, and `--exit`
@@ -58,6 +59,22 @@ export function ScrollStage({ children, className, stageClassName, destination, 
     const hold = parseFloat(css.getPropertyValue("--hold")) || 0;
     const holdAt = parseFloat(css.getPropertyValue("--hold-at")) || 0;
     const clamp01 = (value: number) => Math.min(Math.max(value, 0), 1);
+    /*
+     * Every write here restyles the whole stage, since everything in it reads these
+     * variables. Where the browser runs scroll-driven animations, the stage's CSS takes
+     * its motion from the `--stage` view timeline instead, so nothing is written at all;
+     * elsewhere only a value that has actually changed is written, since scroll events
+     * keep coming long after the stage has scrolled away.
+     */
+    const cssDriven = CSS.supports("animation-timeline: view()");
+    const written = new Map<string, string>();
+    const write = (name: string, value: number) => {
+      if (cssDriven) return;
+      const text = value.toFixed(4);
+      if (written.get(name) === text) return;
+      written.set(name, text);
+      section.style.setProperty(name, text);
+    };
 
     const update = () => {
       frame = 0;
@@ -75,9 +92,9 @@ export function ScrollStage({ children, className, stageClassName, destination, 
       const exit = clamp01(1 - rect.bottom / viewport);
 
       progressRef.current = progress;
-      section.style.setProperty("--progress", progress.toFixed(4));
-      section.style.setProperty("--hold-progress", held.toFixed(4));
-      section.style.setProperty("--exit", exit.toFixed(4));
+      write("--progress", progress);
+      write("--hold-progress", held);
+      write("--exit", exit);
       setPhase((previous) => destinationPhase(previous, progress));
     };
     const schedule = () => {
@@ -99,11 +116,14 @@ export function ScrollStage({ children, className, stageClassName, destination, 
       <section ref={sectionRef} className={className} style={{
         "--destination-start": DESTINATION_VISIBLE_AT,
         "--destination-ready": DESTINATION_READY_AT,
+        // The track as a view timeline: its `contain` range is the pinned span, and its
+        // `exit` range the stage scrolling away, for the CSS inside to animate along.
+        viewTimeline: "--stage block",
       } as CSSProperties}>
         <div className={stageClassName}>
           {children}
           {destination && (
-            <div className={destinationClassName} hidden={phase === "hidden"} inert={phase !== "ready"}>
+            <div className={destinationClassName} inert={phase !== "ready"}>
               <DestinationReadyContext.Provider value={phase === "ready"}>
                 {destination}
               </DestinationReadyContext.Provider>

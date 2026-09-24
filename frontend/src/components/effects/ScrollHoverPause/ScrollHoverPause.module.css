@@ -1,0 +1,7 @@
+/* Invisible and inert until a scroll switches pointing on for it (see the component). */
+.cover {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  pointer-events: none;
+}

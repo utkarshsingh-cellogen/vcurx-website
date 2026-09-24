@@ -1,6 +1,8 @@
 /**
  * Shared by the pinned destination's CSS fade and its animation trigger. Early in a
  * short journey, so the words come up while the globe is still settling behind them.
+ * The scroll-timeline keyframes in Hero.module.css and PlanetSwitch.module.css repeat
+ * these as 42% and 78%; change them together.
  */
 export const DESTINATION_VISIBLE_AT = 0.42;
 export const DESTINATION_READY_AT = 0.78;

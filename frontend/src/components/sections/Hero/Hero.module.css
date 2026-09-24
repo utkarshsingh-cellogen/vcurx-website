@@ -80,9 +80,13 @@
   transform-origin: center;
 }
 
-.destination[hidden] {
-  display: none;
-}
+/*
+ * Never `display: none` or `visibility: hidden` before it arrives: it is drawn from the
+ * start at zero opacity, so its words are measured into lines and its star and glow
+ * layers painted while the page loads, instead of all at once mid-scroll, where that
+ * cost a frame of a tenth of a second. `inert` (ScrollStage) keeps it out of reach of
+ * the pointer, the keyboard and assistive technology until it is ready.
+ */
 
 @media (prefers-reduced-motion: reduce) {
   .destination { transform: none; }
@@ -165,5 +169,105 @@
 @keyframes ruleIn {
   to {
     transform: scaleX(1);
+  }
+}
+
+/*
+ * Where the browser runs scroll-driven animations, the stage's motion runs on the track's
+ * view timeline (`--stage`, from ScrollStage) instead of the variables above, and
+ * ScrollStage stops writing them: the stage no longer restyles on every scroll frame, and
+ * the motion runs on the compositor. The journey is the first 70vh of the pinned span
+ * (the `contain` range), as the track above is built, so each keyframe percentage is the
+ * same progress value the variables use. 42% and 78% are the destination's window from
+ * revealSequence.ts.
+ */
+@supports (animation-timeline: view()) {
+  .scrollAway,
+  .stage::after,
+  .destination {
+    animation-timeline: --stage;
+    animation-range: contain 0 contain 70vh;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+  }
+
+  .scrollAway {
+    animation-name: wordmark-away;
+  }
+
+  .stage::after {
+    animation-name: veil;
+  }
+
+  .destination {
+    animation-name: destination-in;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scrollAway {
+      animation-name: wordmark-fade;
+    }
+
+    .destination {
+      animation-name: destination-fade;
+    }
+  }
+}
+
+@keyframes wordmark-away {
+  0% {
+    opacity: 1;
+    transform: none;
+  }
+  24%,
+  100% {
+    opacity: 0;
+    transform: translateY(-4.3vh) scale(0.971);
+  }
+}
+
+@keyframes wordmark-fade {
+  0% {
+    opacity: 1;
+  }
+  24%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Stops at 0.8, so the globe stays behind the words as a shadow. */
+@keyframes veil {
+  0%,
+  35% {
+    opacity: 0;
+  }
+  75%,
+  100% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes destination-in {
+  0%,
+  42% {
+    opacity: 0;
+    transform: translate3d(0, 3.5vh, 0) scale(1.05);
+  }
+  78%,
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes destination-fade {
+  0%,
+  42% {
+    opacity: 0;
+  }
+  78%,
+  100% {
+    opacity: 1;
   }
 }
