@@ -268,28 +268,44 @@
   padding: 16px 14px 64px;
   background: linear-gradient(170deg, #fdfcf8 0%, #efebe3 100%);
   translate: 0 101%;
-  transition: translate 560ms var(--ease-out);
+  /* Going: quick and even, so it clears out of the way of the next card. */
+  transition: translate 380ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Coming: a long, soft settle, fast off the mark and easing into place. */
 .card[data-state="active"] .sheet {
   translate: 0 0;
+  transition: translate 720ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* A lit dot in the card's colour, where a reader looks first. */
-.sheet::before {
-  content: "";
-  position: absolute;
-  top: 16px;
-  right: 14px;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--domain);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--domain) 70%, transparent);
+/*
+ * The words follow the paper rather than ride on it: once the sheet is most of the way
+ * up, the name and then the description lift a few pixels into place as they fade in.
+ * On the way out they go at once, before the sheet drops, so nothing is seen sliding.
+ */
+.sheetName,
+.sheetText {
+  opacity: 0;
+  translate: 0 10px;
+  transition:
+    opacity 140ms linear,
+    translate 140ms linear;
+}
+
+.card[data-state="active"] .sheetName,
+.card[data-state="active"] .sheetText {
+  opacity: 1;
+  translate: 0 0;
+  transition:
+    opacity 420ms ease 200ms,
+    translate 620ms cubic-bezier(0.16, 1, 0.3, 1) 200ms;
+}
+
+.card[data-state="active"] .sheetText {
+  transition-delay: 280ms;
 }
 
 .sheetName {
-  padding-right: 18px;
   font-size: clamp(13px, 1.05vw, 15px);
   font-weight: 700;
   line-height: 1.2;
@@ -307,13 +323,17 @@
   color: #5b5f68;
 }
 
-/* The name on the art gives way to the one on the sheet. */
+/*
+ * The name on the art gives way to the one on the sheet: it fades straight away as the
+ * sheet rises, and comes back only once the sheet has dropped, so the two never overlap.
+ */
 .card[data-described] .head {
-  transition: opacity 300ms var(--ease-out);
+  transition: opacity 280ms ease 260ms;
 }
 
 .card[data-described][data-state="active"] .head {
   opacity: 0;
+  transition: opacity 160ms ease;
 }
 
 /* On paper the pill goes dark, with the card's colour still in it. */
@@ -333,8 +353,10 @@
   display: none;
 }
 
+/* Reduced motion: the sheet and its words simply fade, with nothing sliding. */
 @media (prefers-reduced-motion: reduce) {
-  .sheet {
+  .sheet,
+  .card[data-state="active"] .sheet {
     translate: 0 0;
     opacity: 0;
     transition: opacity 200ms linear;
@@ -342,6 +364,13 @@
 
   .card[data-state="active"] .sheet {
     opacity: 1;
+  }
+
+  .sheetName,
+  .sheetText,
+  .card[data-state="active"] .sheetName,
+  .card[data-state="active"] .sheetText {
+    translate: 0 0;
   }
 }
 
