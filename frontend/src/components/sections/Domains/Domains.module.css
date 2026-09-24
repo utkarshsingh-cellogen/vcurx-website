@@ -49,8 +49,6 @@
   --wire-w: 1.5px;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: clamp(72px, 12vh, 128px);
-  margin-top: clamp(24px, 5vh, 56px);
 }
 
 .domain {
@@ -60,12 +58,34 @@
   --wire-lit: color-mix(in srgb, var(--domain) 60%, #fff);
   --spark: color-mix(in srgb, var(--domain) 25%, #fff);
   --glow: 0 0 10px color-mix(in srgb, var(--domain) 80%, transparent);
-  /* The wires draw themselves along this, as the row crosses the screen. */
+  /* Everything in the scene moves along this, as the scene crosses the screen. */
   view-timeline: --row block;
+  /*
+   * Each domain is a scene a screen tall, its tree centred in it, so one domain holds
+   * the screen at a time: it rises out of the dark, settles, and sinks back into it.
+   */
+  position: relative;
+  isolation: isolate;
   display: grid;
-  transition: filter 450ms var(--ease-out);
   grid-template-columns: var(--parent-w) minmax(0, 1fr);
   align-items: center;
+  min-height: 100vh;
+  min-height: 100svh;
+  transition: filter 450ms var(--ease-out);
+}
+
+/* The deepest layer: a haze of the domain's colour behind its card. */
+.domain::before {
+  content: "";
+  position: absolute;
+  inset: 8% -24% 8% -30%;
+  z-index: -1;
+  background: radial-gradient(
+    38% 46% at 24% 50%,
+    color-mix(in srgb, var(--domain) 20%, transparent),
+    transparent 72%
+  );
+  pointer-events: none;
 }
 
 .parent {
@@ -354,12 +374,14 @@
  * Scroll-driven, so all of it runs on the compositor with no script; browsers without
  * view timelines simply show the tree still.
  *
- * The heading rises to meet the interlude above as it scrolls away. Each domain fades
- * in as it arrives, and then the parallax: the domain card sits deeper and drifts
- * against the scroll, so it holds while its products pass, and each product sits a
- * little nearer, each column at its own depth. Every layer crosses zero at the middle
- * of the screen, so a row lines up exactly where it is read. It moves `translate`, not
- * `transform`, so the cards keep their own lift when raised.
+ * The heading rises to meet the interlude above as it scrolls away. Then each domain
+ * is a scene that rises out of the dark and sinks back into it, its layers at four
+ * depths: the haze of its colour farthest back and slowest, then the domain card, then
+ * the wires, and the products nearest, each column coming up from its own depth. All
+ * of it runs on the scene's timeline, where 50% is the scene filling the screen, so
+ * that is where every layer comes to rest and the tree lines up. Photographs also pan
+ * inside their frames, slower than the frames move, so each card has depth of its own.
+ * It all moves `translate` and `scale`, not `transform`, so a raised card keeps its lift.
  */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
@@ -371,20 +393,35 @@
     }
 
     .domain {
-      animation: arrive linear both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 320px;
+      animation: scene linear both;
+      animation-timeline: --row;
+      animation-range: cover;
     }
 
-    .parent,
-    .products > [data-state] {
-      animation: depth linear both;
-      animation-timeline: view();
+    .domain::before {
+      animation: haze linear both;
+      animation-timeline: --row;
       animation-range: cover;
     }
 
     .parent {
-      --depth: -56px;
+      animation: anchor linear both;
+      animation-timeline: --row;
+      animation-range: cover;
+    }
+
+    .products > [data-state] {
+      animation: surface linear both;
+      animation-timeline: --row;
+      animation-range: cover;
+    }
+
+    /* The photograph, not a logo: a logo sits whole on its plate and must not crop. */
+    .domain [data-state] > img {
+      scale: 1.16;
+      animation: pan linear both;
+      animation-timeline: --row;
+      animation-range: cover;
     }
 
     .products > [data-state] {
@@ -410,42 +447,42 @@
     /*
      * The wires draw themselves in the order the eye follows them: the stem out of the
      * domain card, the spine forking up and down from it, each branch along to its
-     * products, and last the group's name and the node. They run on the row's own
-     * timeline, so a row is fully wired by the time it reaches the middle of the screen.
+     * products, and last the group's name and the node. They draw while the scene
+     * settles, so it is fully wired as it comes to rest filling the screen.
      * They animate `scale`, which leaves the lit glow and the pulse untouched.
      */
     .branches::before {
       animation: draw-x linear both;
       animation-timeline: --row;
-      animation-range: cover 14% cover 22%;
+      animation-range: cover 28% cover 33%;
     }
 
     .branch::before {
       animation: draw-y linear both;
       animation-timeline: --row;
-      animation-range: cover 20% cover 28%;
+      animation-range: cover 32% cover 37%;
     }
 
     .wire {
       animation: draw-x linear both;
       animation-timeline: --row;
-      animation-range: cover 26% cover 36%;
+      animation-range: cover 36% cover 42%;
     }
 
     .groupName + .wire {
-      animation-range: cover 32% cover 40%;
+      animation-range: cover 39% cover 45%;
     }
 
     .groupName {
       animation: appear linear both;
       animation-timeline: --row;
-      animation-range: cover 28% cover 34%;
+      animation-range: cover 37% cover 41%;
     }
 
     .link::after {
       animation: appear linear both;
       animation-timeline: --row;
-      animation-range: cover 38% cover 44%;
+      animation-range: cover 43% cover 48%;
     }
   }
 }
@@ -530,22 +567,87 @@
   }
 }
 
-@keyframes arrive {
-  from {
+/*
+ * The scene's keyframes, on its cover range: 0% is its top at the foot of the screen,
+ * 50% it fills the screen, 100% its foot leaves the top.
+ */
+
+/* Out of the dark, and back into it. */
+@keyframes scene {
+  0% {
     opacity: 0;
   }
-  to {
+  30%,
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Farthest back: it all but keeps pace with the screen, and swells as the scene arrives. */
+@keyframes haze {
+  0% {
+    translate: 0 -40vh;
+    scale: 0.7;
+  }
+  50% {
+    translate: 0 0;
+    scale: 1;
+  }
+  100% {
+    translate: 0 40vh;
+    scale: 1.1;
+  }
+}
+
+/* The domain card: up out of the dark ahead of its products, then it lags as it leaves. */
+@keyframes anchor {
+  0% {
+    translate: 0 -12vh;
+    scale: 0.9;
+    opacity: 0;
+  }
+  35% {
+    opacity: 1;
+  }
+  50% {
+    translate: 0 0;
+    scale: 1;
+  }
+  100% {
+    translate: 0 10vh;
+    scale: 0.96;
     opacity: 1;
   }
 }
 
-/* A positive depth is nearer: it starts low and overtakes the scroll. A negative one lags. */
-@keyframes depth {
+/* A product: from well below, each column from its own depth, then it leads the way out. */
+@keyframes surface {
+  0% {
+    translate: 0 calc(var(--depth) * 5);
+    opacity: 0;
+  }
+  38% {
+    opacity: 1;
+  }
+  50% {
+    translate: 0 0;
+  }
+  100% {
+    translate: 0 calc(var(--depth) * -2);
+    opacity: 1;
+  }
+}
+
+/* A photograph drifts down inside its frame as the frame goes up, so it reads as deeper. */
+@keyframes pan {
   from {
-    translate: 0 var(--depth);
+    translate: 0 -6%;
   }
   to {
-    translate: 0 calc(var(--depth) * -1);
+    translate: 0 6%;
   }
 }
 
