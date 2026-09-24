@@ -11,7 +11,12 @@ export type DeckCardProps = {
   /** The product's own logo. When given, it replaces the photo, set on a plate of its own ground. */
   logo?: CardLogo;
   name: string;
-  href: string;
+  /** Where the call to action goes. Without one the card says its link is on the way. */
+  href?: string;
+  /** The link leaves the site, so it opens in a new tab. */
+  external?: boolean;
+  /** A line or two on the card's subject, on a sheet that rises over it while it is raised. */
+  description?: string;
   cta?: string;
   /** A `--domain-*` custom property name, without `var()`. */
   accent?: string;
@@ -34,7 +39,8 @@ export type DeckCardProps = {
  * The card the whole site is built from: a name over a portrait image, and a
  * smoked bar at the foot carrying nothing but the call to action. A product with a
  * logo shows the logo instead, whole and centred on a plate, and drops the name
- * when the logo already spells it.
+ * when the logo already spells it. A card with a description raises a paper sheet over
+ * itself while it is the raised card, with its name and that description on it.
  * It only dresses the state it is handed — a Deck decides which card is raised.
  */
 export function DeckCard({
@@ -42,6 +48,8 @@ export function DeckCard({
   logo,
   name,
   href,
+  external = false,
+  description,
   cta = "Explore",
   accent,
   sizes = "280px",
@@ -62,6 +70,7 @@ export function DeckCard({
       data-size={size}
       data-plate={logo?.plate}
       data-named={logo?.named || undefined}
+      data-described={description ? "" : undefined}
       style={
         {
           "--domain": accent ? `var(${accent})` : "var(--accent)",
@@ -90,12 +99,30 @@ export function DeckCard({
         <h3 className={styles.name}>{name}</h3>
       </header>
 
+      {description && (
+        <div className={styles.sheet}>
+          {/* The heading above already names the card for screen readers. */}
+          <p className={styles.sheetName} aria-hidden="true">{name}</p>
+          <p className={styles.sheetText}>{description}</p>
+        </div>
+      )}
+
       <footer className={styles.foot}>
-        <Link href={href} className={styles.cta}>
-          {cta}
-          <span className={styles.ctaLabel}> {name}</span>
-          <Icon name="arrowUpRight" size={13} className={styles.ctaIcon} aria-hidden="true" />
-        </Link>
+        {!href ? (
+          <span className={`${styles.cta} ${styles.ctaPending}`}>Link coming soon</span>
+        ) : external ? (
+          <a href={href} target="_blank" rel="noopener noreferrer" className={styles.cta}>
+            {cta}
+            <span className={styles.ctaLabel}> {name} (opens in a new tab)</span>
+            <Icon name="arrowUpRight" size={13} className={styles.ctaIcon} aria-hidden="true" />
+          </a>
+        ) : (
+          <Link href={href} className={styles.cta}>
+            {cta}
+            <span className={styles.ctaLabel}> {name}</span>
+            <Icon name="arrowUpRight" size={13} className={styles.ctaIcon} aria-hidden="true" />
+          </Link>
+        )}
       </footer>
     </article>
   );

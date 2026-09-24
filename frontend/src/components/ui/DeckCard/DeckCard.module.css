@@ -251,6 +251,100 @@
   }
 }
 
+/* ---------- description sheet ---------- */
+/*
+ * A paper sheet parked below the card that rises over it while the card is raised: the
+ * name at the top, the description under it, and the call to action still at the foot,
+ * above the sheet. It sits over the art, the plate and the smoked foot, so they need no
+ * changes of their own, and under the name and the foot, which are drawn later.
+ */
+.sheet {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 16px 14px 64px;
+  background: linear-gradient(170deg, #fdfcf8 0%, #efebe3 100%);
+  translate: 0 101%;
+  transition: translate 560ms var(--ease-out);
+}
+
+.card[data-state="active"] .sheet {
+  translate: 0 0;
+}
+
+/* A lit dot in the card's colour, where a reader looks first. */
+.sheet::before {
+  content: "";
+  position: absolute;
+  top: 16px;
+  right: 14px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--domain);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--domain) 70%, transparent);
+}
+
+.sheetName {
+  padding-right: 18px;
+  font-size: clamp(13px, 1.05vw, 15px);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: #171a21;
+}
+
+.sheetText {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 7;
+  font-size: clamp(11.5px, 0.9vw, 13px);
+  line-height: 1.5;
+  color: #5b5f68;
+}
+
+/* The name on the art gives way to the one on the sheet. */
+.card[data-described] .head {
+  transition: opacity 300ms var(--ease-out);
+}
+
+.card[data-described][data-state="active"] .head {
+  opacity: 0;
+}
+
+/* On paper the pill goes dark, with the card's colour still in it. */
+.card[data-described][data-state="active"] .cta {
+  background: color-mix(in srgb, var(--domain) 28%, #10131a);
+  color: #fff;
+}
+
+/* No link yet: the pill reads as a note, not a button. */
+.ctaPending {
+  opacity: 0.7;
+  font-weight: 500;
+  cursor: default;
+}
+
+.ctaPending::after {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet {
+    translate: 0 0;
+    opacity: 0;
+    transition: opacity 200ms linear;
+  }
+
+  .card[data-state="active"] .sheet {
+    opacity: 1;
+  }
+}
+
 /* ---------- logo cards ---------- */
 /*
  * A product's own logo, shown whole on a plate of the ground it was drawn for. Nearly

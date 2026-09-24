@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, type CSSProperties } from "react";
 import { domains, groupedProducts, productsIn, type DomainSlug, type Product } from "@/data/products";
 import { Icon } from "@/components/ui/Icon";
+import { ProductLink } from "@/components/ui/ProductLink";
 import { StatusTag } from "@/components/ui/StatusTag";
 import styles from "./DomainTree.module.css";
 
@@ -15,10 +16,10 @@ function Leaves({ products }: { products: readonly Product[] }) {
     <ul className={styles.leaves}>
       {products.map((product) => (
         <li key={product.slug} className={styles.leafRow}>
-          <Link href={`/products/${product.slug}`} className={styles.leaf}>
+          <ProductLink href={product.url} className={styles.leaf}>
             <span className={styles.leafName}>{product.name}</span>
             <StatusTag status={product.status} className={styles.leafStatus} />
-          </Link>
+          </ProductLink>
         </li>
       ))}
     </ul>

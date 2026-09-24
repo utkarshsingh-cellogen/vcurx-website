@@ -6,8 +6,8 @@ import {
   domains,
   getDomain,
   groupedProducts,
-  logoFor,
   photoFor,
+  productCard,
   productsIn,
 } from "@/data/products";
 import { DeepSpace } from "@/components/effects/DeepSpace";
@@ -85,12 +85,8 @@ export default async function DomainPage({ params }: PageProps<"/domains/[slug]"
 
         {groups.map((group, i) => {
           const items: readonly DeckItem[] = group.products.map((product) => ({
-            key: product.slug,
-            image: photoFor(product.slug),
-            logo: logoFor(product),
+            ...productCard(product),
             sizes: "(max-width: 1023px) 45vw, 270px",
-            name: product.name,
-            href: `/products/${product.slug}`,
             accent: domain.accent,
           }));
 

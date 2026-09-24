@@ -39,6 +39,11 @@ export type Product = {
   steps?: readonly [string, string, string];
   /** The product's own logo, at `public/logos/<slug>.webp`. Cards show it in place of the photo. */
   logo?: LogoInfo;
+  /**
+   * The product's own site. Every link to a product on this site goes here, in a new
+   * tab; until it is set, the product's cards and list entries show it without a link.
+   */
+  url?: string;
 };
 
 export type LogoInfo = {
@@ -82,15 +87,19 @@ export const domains: readonly Domain[] = [
 ];
 
 
+/*
+ * The one-liners so far are the taglines printed on the products' own logos; the rest
+ * are waiting on copy, and their cards say so.
+ */
 export const products: readonly Product[] = [
   // Therapeutics Intelligence
   { name: "CAR-T AI Agent", slug: "car-t-ai-agent", domain: "therapeutics", status: "in-lab", logo: { plate: "light", named: true } },
   { name: "GenAI PY Agent", slug: "genai-py-agent", domain: "therapeutics", status: "in-lab" },
 
   // Research › Bi-Sciterse › Design
-  { name: "HelixForge", slug: "helixforge", domain: "research", group: "Design", status: "in-lab", logo: { plate: "light", named: true } },
-  { name: "PromoterForge", slug: "promoterforge", domain: "research", group: "Design", status: "in-lab", logo: { plate: "dark", named: true } },
-  { name: "CelAbGen", slug: "celabgen", domain: "research", group: "Design", status: "in-lab", logo: { plate: "light", named: true } },
+  { name: "HelixForge", slug: "helixforge", domain: "research", group: "Design", status: "in-lab", logo: { plate: "light", named: true }, oneLiner: "Unified construct design." },
+  { name: "PromoterForge", slug: "promoterforge", domain: "research", group: "Design", status: "in-lab", logo: { plate: "dark", named: true }, oneLiner: "Design promoters. Power therapies." },
+  { name: "CelAbGen", slug: "celabgen", domain: "research", group: "Design", status: "in-lab", logo: { plate: "light", named: true }, oneLiner: "De novo antibody design." },
   { name: "Cimmexa", slug: "cimmexa", domain: "research", group: "Design", status: "in-lab", logo: { plate: "light", named: true } },
   { name: "Celnfo", slug: "celnfo", domain: "research", group: "Design", status: "in-lab" },
 
@@ -99,7 +108,7 @@ export const products: readonly Product[] = [
   { name: "Antigen Discovery", slug: "antigen-discovery", domain: "research", group: "Discovery", status: "in-lab" },
   { name: "Single-cell Analysis", slug: "single-cell-analysis", domain: "research", group: "Discovery", status: "in-lab" },
   { name: "Spatiomic AI", slug: "spatiomic-ai", domain: "research", group: "Discovery", status: "in-lab", logo: { plate: "light", named: false } },
-  { name: "CytoTwin", slug: "cytotwin", domain: "research", group: "Discovery", status: "in-lab", logo: { plate: "light", named: true } },
+  { name: "CytoTwin", slug: "cytotwin", domain: "research", group: "Discovery", status: "in-lab", logo: { plate: "light", named: true }, oneLiner: "Model. Simulate. Transform." },
 
   // Clinical › AI-Doctor › Patient Care
   { name: "Response Prediction", slug: "response-prediction", domain: "clinical", group: "Patient Care", status: "in-lab", logo: { plate: "light", named: false } },
@@ -108,7 +117,7 @@ export const products: readonly Product[] = [
   { name: "Perturbation Analysis", slug: "perturbation-analysis", domain: "clinical", group: "Patient Care", status: "in-lab", logo: { plate: "light", named: false } },
 
   // Clinical › AI-Doctor › Regulatory
-  { name: "CiRA AI", slug: "cira-ai", domain: "clinical", group: "Regulatory", status: "in-lab", logo: { plate: "light", named: true } },
+  { name: "CiRA AI", slug: "cira-ai", domain: "clinical", group: "Regulatory", status: "in-lab", logo: { plate: "light", named: true }, oneLiner: "Intellectual AI platform for clinical trials and regulatory affairs." },
 
   // Diagnostic
   { name: "OralPatho", slug: "oralpatho", domain: "diagnostic", status: "in-lab", logo: { plate: "light", named: false } },
@@ -153,4 +162,17 @@ export function photoFor(slug: string): string {
 /** A product's logo, ready for a card, or undefined while it has only a photograph. */
 export function logoFor(product: Product): CardLogo | undefined {
   return product.logo && { ...product.logo, src: `/logos/${product.slug}.webp` };
+}
+
+/** What every product card shows, wherever it sits: its face, its line, and where Explore goes. */
+export function productCard(product: Product) {
+  return {
+    key: product.slug,
+    image: photoFor(product.slug),
+    logo: logoFor(product),
+    name: product.name,
+    description: product.oneLiner ?? "Description coming soon.",
+    href: product.url,
+    external: true,
+  };
 }

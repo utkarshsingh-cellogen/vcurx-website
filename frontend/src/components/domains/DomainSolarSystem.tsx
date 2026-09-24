@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useId, useRef, useState, type CSSProperties } from "react";
+import { ProductLink } from "@/components/ui/ProductLink";
 import { DOMAINS, type SolarDomain } from "./domains.data";
 import {
   GEN,
@@ -615,9 +616,9 @@ export function DomainSolarSystem({ title }: DomainSolarSystemProps) {
             <ul className={styles.groupList}>
               {group.items.map((item) => (
                 <li key={item.slug}>
-                  <Link href={`/products/${item.slug}`} className={styles.groupLink}>
+                  <ProductLink href={item.url} className={styles.groupLink}>
                     {item.name}
-                  </Link>
+                  </ProductLink>
                 </li>
               ))}
             </ul>

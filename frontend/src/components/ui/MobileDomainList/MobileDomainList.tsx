@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { domains, groupedProducts, productsIn } from "@/data/products";
 import { Icon } from "@/components/ui/Icon";
+import { ProductLink } from "@/components/ui/ProductLink";
 import styles from "./MobileDomainList.module.css";
 
 type MobileDomainListProps = {
@@ -33,10 +34,10 @@ export function MobileDomainList({ className }: MobileDomainListProps) {
                     <ul className={styles.products}>
                       {group.products.map((product) => (
                         <li key={product.slug}>
-                          <Link href={`/products/${product.slug}`} className={styles.product}>
+                          <ProductLink href={product.url} className={styles.product}>
                             {product.name}
                             <Icon name="arrowUpRight" size={12} />
-                          </Link>
+                          </ProductLink>
                         </li>
                       ))}
                     </ul>

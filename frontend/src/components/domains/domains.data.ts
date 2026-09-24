@@ -37,7 +37,7 @@ export type SolarDomain = {
   color: string;
   desc: string;
   brand?: string;
-  groups: readonly { title: string | null; items: readonly { name: string; slug: string }[] }[];
+  groups: readonly { title: string | null; items: readonly { name: string; slug: string; url?: string }[] }[];
   count: number;
 };
 
@@ -45,7 +45,7 @@ export type SolarDomain = {
 export const DOMAINS: readonly SolarDomain[] = domains.map((domain) => {
   const groups = groupedProducts(domain).map((group) => ({
     title: group.name ?? null,
-    items: group.products.map((product) => ({ name: product.name, slug: product.slug })),
+    items: group.products.map((product) => ({ name: product.name, slug: product.slug, url: product.url })),
   }));
   return {
     id: domain.slug,

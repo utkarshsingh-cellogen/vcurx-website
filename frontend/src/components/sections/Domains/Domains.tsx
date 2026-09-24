@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import { domainsSection } from "@/config/content";
-import { domains, groupedProducts, logoFor, photoFor } from "@/data/products";
+import { domains, groupedProducts, photoFor, productCard } from "@/data/products";
 import { DeepSpace } from "@/components/effects/DeepSpace";
 import { MobileDomainList } from "@/components/ui/MobileDomainList";
 import { Deck } from "@/components/ui/Deck";
@@ -67,12 +67,8 @@ export function Domains() {
                       narrow="hide"
                       className={styles.products}
                       items={group.products.map((product) => ({
-                        key: product.slug,
-                        image: photoFor(product.slug),
-                        logo: logoFor(product),
+                        ...productCard(product),
                         sizes: "180px",
-                        name: product.name,
-                        href: `/products/${product.slug}`,
                         accent: domain.accent,
                       }))}
                     />

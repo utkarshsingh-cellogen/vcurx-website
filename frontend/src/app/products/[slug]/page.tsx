@@ -7,6 +7,7 @@ import {
   getProduct,
   logoFor,
   photoFor,
+  productCard,
   products,
   productsIn,
 } from "@/data/products";
@@ -40,12 +41,8 @@ export default async function ProductPage({ params }: PageProps<"/products/[slug
     .filter((other) => other.slug !== product.slug)
     .slice(0, 5)
     .map((other) => ({
-      key: other.slug,
-      image: photoFor(other.slug),
-      logo: logoFor(other),
+      ...productCard(other),
       sizes: "(max-width: 1023px) 45vw, 260px",
-      name: other.name,
-      href: `/products/${other.slug}`,
       accent: domain?.accent,
     }));
 
