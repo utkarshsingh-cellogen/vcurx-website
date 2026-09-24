@@ -1,56 +1,138 @@
-/* One screen: the wordmark holds the left; the background puts the Earth on the right. */
+/*
+ * Tall scroll track: the extra height is the distance we fly toward the planet.
+ * The stage is sticky, so the first viewport height is never travelled — what
+ * the visitor actually flies through is this minus 100vh, minus the dwell.
+ *
+ * `--dwell` is scroll that buys no journey: by the time it begins the arrival has
+ * landed and progress is already 1, and this much screen still has to be scrolled
+ * before the page moves on. Without it the arrival was ready with a quarter-screen
+ * to spare, so one flick of the wheel — or a burst of scroll queued while the globe
+ * was still compiling — carried the visitor straight past it into the domains.
+ * ScrollStage reads this same variable, so the two cannot drift apart.
+ *
+ * `--hold` is the same idea mid-journey: the camera has settled over Delhi at
+ * `--hold-at`, and the map stays put for this many screens — about two scrolls —
+ * before the dive into the destination begins. Without it the map was on screen
+ * for under a third of a screen before the dive took it away.
+ */
 .hero {
+  --progress: 0;
+  --dwell: 0.4;
+  --hold: 0.8;
+  --hold-at: 0.6;
   position: relative;
-  isolation: isolate;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-  align-items: center;
-  min-height: 100vh;
-  min-height: 100svh;
-  padding: clamp(88px, 12vh, 132px) var(--gutter) clamp(40px, 8vh, 88px);
+  height: calc(260vh + (var(--dwell) + var(--hold)) * 100vh);
+  height: calc(260svh + (var(--dwell) + var(--hold)) * 100svh);
+}
+
+.description {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
   overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Pinned viewport-sized stage */
+.stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  /* Text sits in the upper sky; the planet rises beneath it */
+  padding: clamp(40px, 8vh, 110px) var(--gutter) 80px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* The destination replaces the surface inside this same pinned viewport. */
+.stage {
+  --arrival: clamp(0, calc((var(--progress) - 0.6) / 0.24), 1);
+  --content-arrival: clamp(0, calc((var(--progress) - var(--destination-start)) / (var(--destination-ready) - var(--destination-start))), 1);
+  background: #000;
+}
+
+.stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: #000;
+  opacity: var(--arrival);
+}
+
+.destination {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow-y: auto;
+  opacity: var(--content-arrival);
+  /* Rises the last few vh as it settles, so arriving reads as landing. */
+  transform:
+    translate3d(0, calc((1 - var(--content-arrival)) * 3.5vh), 0)
+    scale(calc(1.05 - var(--content-arrival) * 0.05));
+  transform-origin: center;
+}
+
+.destination[hidden] {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .destination { transform: none; }
 }
 
 /*
- * The block sits on the left, but only as wide as the wordmark, and centres the
- * tagline under it: one visual unit rather than a word with a line trailing off.
+ * Lifts and fades away as the planet approaches. Transform and opacity only:
+ * a scroll-driven blur re-rasterises this layer — which holds the whole wordmark
+ * at min(27vw, 40vh) — on every scroll frame, and the element is already
+ * invisible by --progress 0.24, so the blur was never really seen.
  */
+.scrollAway {
+  opacity: calc(1 - var(--progress) * 4.2);
+  transform: translateY(calc(var(--progress) * -18vh)) scale(calc(1 - var(--progress) * 0.12));
+  will-change: transform, opacity;
+}
+
 .content {
-  position: relative;
-  z-index: 1;
-  justify-self: start;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-left: clamp(0px, 1.5vw, 28px);
 }
 
-/* Scoped under .content so it reliably overrides the headline's own size and centring. */
+/* Scoped under .content so it reliably overrides the headline's default size */
 .content .headline {
-  font-size: min(11vw, 27vh);
+  /* Also capped by height so short, wide windows keep the text clear of the planet */
+  /* Big wordmark spanning ~¾ of the width, capped by height so it clears the planet */
+  font-size: min(27vw, 40vh);
   line-height: 0.92;
   letter-spacing: -0.01em;
-  text-align: center;
 }
 
-/* "—— HEALING BEYOND ——" */
+/* "—— we cure us ——" */
 .tagline {
   display: flex;
   align-items: center;
-  gap: clamp(14px, 1.8vw, 24px);
-  margin-top: clamp(14px, 2vw, 26px);
-  /* Balances the trailing letter-spacing so the words sit optically centred. */
-  padding-left: 0.6em;
-  font-size: clamp(11px, 1.1vw, 16px);
+  gap: clamp(16px, 2.2vw, 30px);
+  margin-top: clamp(16px, 2.4vw, 30px);
+  font-size: clamp(12px, 1.3vw, 18px);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.6em;
+  /* balance the trailing letter-spacing so the text stays optically centered */
+  padding-left: 0.6em;
   color: rgba(247, 241, 232, 0.72);
   opacity: 0;
   animation: taglineIn 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.65s forwards;
 }
 
-/* Hairlines that fade out toward their far ends. */
+/* Hairlines that fade out toward their far ends */
 .rule {
   display: block;
   width: clamp(36px, 6vw, 96px);
@@ -83,31 +165,5 @@
 @keyframes ruleIn {
   to {
     transform: scaleX(1);
-  }
-}
-
-/* Narrow screens: the wordmark above, the Earth low in the frame beneath it. */
-@media (max-width: 767px) {
-  .hero {
-    grid-template-columns: minmax(0, 1fr);
-    align-content: start;
-  }
-
-  .content {
-    justify-self: center;
-    margin-left: 0;
-  }
-
-  .content .headline {
-    font-size: min(24vw, 22vh);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tagline,
-  .rule {
-    animation: none;
-    opacity: 1;
-    transform: none;
   }
 }

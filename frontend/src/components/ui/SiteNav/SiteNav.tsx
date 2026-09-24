@@ -2,7 +2,7 @@ import Link from "next/link";
 import { siteConfig } from "@/config/site";
 import styles from "./SiteNav.module.css";
 
-/** Minimal header for the pages outside the home page: just the wordmark, home. */
+/** Minimal header for the pages outside the scroll journey: just the wordmark, home. */
 export function SiteNav() {
   return (
     <header className={styles.nav}>
