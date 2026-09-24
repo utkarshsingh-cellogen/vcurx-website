@@ -57,7 +57,13 @@
   /* The accents are muted mid-tones that sink into the black, so the wire is lifted
      toward paper white first, then only slightly thinned. */
   --wire: color-mix(in srgb, color-mix(in srgb, var(--domain) 70%, #f4f1ea) 78%, transparent);
+  --wire-lit: color-mix(in srgb, var(--domain) 60%, #fff);
+  --spark: color-mix(in srgb, var(--domain) 25%, #fff);
+  --glow: 0 0 10px color-mix(in srgb, var(--domain) 80%, transparent);
+  /* The wires draw themselves along this, as the row crosses the screen. */
+  view-timeline: --row block;
   display: grid;
+  transition: filter 450ms var(--ease-out);
   grid-template-columns: var(--parent-w) minmax(0, 1fr);
   align-items: center;
 }
@@ -99,13 +105,20 @@
  * row, so the middle of the branches is the middle of the card, and it is always on the
  * spine: the spine runs from the first branch's middle to the last one's.
  */
-.branches::before {
+.branches::before,
+.branches::after {
   content: "";
   position: absolute;
   top: 50%;
   left: 0;
   width: var(--stem);
-  border-top: var(--wire-w) solid var(--wire);
+  height: var(--wire-w);
+}
+
+.branches::before {
+  background: var(--wire);
+  transform-origin: left;
+  transition: background-color 400ms var(--ease-out), box-shadow 400ms var(--ease-out);
 }
 
 .branch {
@@ -125,14 +138,18 @@
   bottom: 0;
   left: var(--stem);
   border-left: var(--wire-w) solid var(--wire);
+  transition: border-color 400ms var(--ease-out), box-shadow 400ms var(--ease-out);
 }
 
+/* Each stretch grows out from where the stem meets the spine. */
 .branch:first-child::before {
   top: 50%;
+  transform-origin: bottom;
 }
 
 .branch:last-child::before {
   bottom: 50%;
+  transform-origin: top;
 }
 
 .branch:only-child::before {
@@ -148,9 +165,28 @@
 }
 
 .wire {
+  position: relative;
   flex: 1;
   min-width: 12px;
-  border-top: var(--wire-w) solid var(--wire);
+  height: var(--wire-w);
+  background: var(--wire);
+  transform-origin: left;
+  transition: background-color 400ms var(--ease-out), box-shadow 400ms var(--ease-out);
+}
+
+/* The pulse's layer: a bright streak parked off the wire until the branch is lit. */
+.wire::after,
+.branches::after {
+  background: linear-gradient(90deg, transparent, var(--spark), transparent) no-repeat;
+  background-size: 45% 100%;
+  background-position: -100% 0;
+  opacity: 0;
+}
+
+.wire::after {
+  content: "";
+  position: absolute;
+  inset: 0;
 }
 
 .wire:first-child:not(:last-child) {
@@ -229,6 +265,84 @@
   }
 }
 
+/*
+ * Lighting a branch. Pointing at or tabbing into any card in a domain brightens its
+ * whole tree and dims the other domains, so the domain and its products read as one.
+ * A streak then runs out along the wires: through the stem first, then down the
+ * branches, and the node at the end flares as it arrives. From the domain card every
+ * branch fires; from a product, only the branch it hangs on, tracing its way home.
+ * Hover rules sit behind `(hover: hover)`, so a tap on a phone never leaves one stuck.
+ */
+@media (hover: hover) {
+  .tree:has([data-state]:hover) .domain:not(:has([data-state]:hover)) {
+    filter: brightness(0.42) saturate(0.6);
+  }
+
+  .domain:has([data-state]:hover) {
+    --wire: var(--wire-lit);
+  }
+}
+
+.tree:has(:focus-visible) .domain:not(:has(:focus-visible)) {
+  filter: brightness(0.42) saturate(0.6);
+}
+
+.domain:has(:focus-visible) {
+  --wire: var(--wire-lit);
+}
+
+/* Pseudo-elements cannot go inside `:is()`, so each lit piece is named on its own. */
+@media (hover: hover) {
+  .domain:has([data-state]:hover) .branches::before,
+  .domain:has([data-state]:hover) .branch::before,
+  .domain:has([data-state]:hover) .wire {
+    box-shadow: var(--glow);
+  }
+}
+
+.domain:has(:focus-visible) .branches::before,
+.domain:has(:focus-visible) .branch::before,
+.domain:has(:focus-visible) .wire {
+  box-shadow: var(--glow);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @media (hover: hover) {
+    /* The stem carries every branch's streak, whichever card started it. */
+    .domain:has([data-state]:hover) .branches::after {
+      opacity: 1;
+      animation: pulse-stem 1.8s linear infinite;
+    }
+
+    .domain:has(.parent [data-state]:hover) .wire::after,
+    .branch:has([data-state]:hover) .wire::after {
+      opacity: 1;
+      animation: pulse-wire 1.8s linear infinite;
+    }
+
+    .domain:has(.parent [data-state]:hover) .link::after,
+    .branch:has([data-state]:hover) .link::after {
+      animation: flare 1.8s var(--ease-out) infinite;
+    }
+  }
+
+  .domain:has(:focus-visible) .branches::after {
+    opacity: 1;
+    animation: pulse-stem 1.8s linear infinite;
+  }
+
+  .domain:has(.parent :focus-visible) .wire::after,
+  .branch:has(:focus-visible) .wire::after {
+    opacity: 1;
+    animation: pulse-wire 1.8s linear infinite;
+  }
+
+  .domain:has(.parent :focus-visible) .link::after,
+  .branch:has(:focus-visible) .link::after {
+    animation: flare 1.8s var(--ease-out) infinite;
+  }
+}
+
 /* The decks inside step aside here, so the tree goes with them and the list takes over. */
 @media (max-width: 1023px), (max-height: 640px) {
   .tree {
@@ -292,6 +406,116 @@
     .products > :nth-child(5n) {
       --depth: 26px;
     }
+
+    /*
+     * The wires draw themselves in the order the eye follows them: the stem out of the
+     * domain card, the spine forking up and down from it, each branch along to its
+     * products, and last the group's name and the node. They run on the row's own
+     * timeline, so a row is fully wired by the time it reaches the middle of the screen.
+     * They animate `scale`, which leaves the lit glow and the pulse untouched.
+     */
+    .branches::before {
+      animation: draw-x linear both;
+      animation-timeline: --row;
+      animation-range: cover 14% cover 22%;
+    }
+
+    .branch::before {
+      animation: draw-y linear both;
+      animation-timeline: --row;
+      animation-range: cover 20% cover 28%;
+    }
+
+    .wire {
+      animation: draw-x linear both;
+      animation-timeline: --row;
+      animation-range: cover 26% cover 36%;
+    }
+
+    .groupName + .wire {
+      animation-range: cover 32% cover 40%;
+    }
+
+    .groupName {
+      animation: appear linear both;
+      animation-timeline: --row;
+      animation-range: cover 28% cover 34%;
+    }
+
+    .link::after {
+      animation: appear linear both;
+      animation-timeline: --row;
+      animation-range: cover 38% cover 44%;
+    }
+  }
+}
+
+@keyframes draw-x {
+  from {
+    scale: 0 1;
+  }
+  to {
+    scale: 1 1;
+  }
+}
+
+@keyframes draw-y {
+  from {
+    scale: 1 0;
+  }
+  to {
+    scale: 1 1;
+  }
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+    scale: 0.4;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+/* The streak crosses the short stem early in the beat… */
+@keyframes pulse-stem {
+  0% {
+    background-position: -100% 0;
+  }
+  28%,
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* …then the branches, so it reads as one pulse flowing out. */
+@keyframes pulse-wire {
+  0%,
+  22% {
+    background-position: -100% 0;
+  }
+  82%,
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* The node flares as the streak reaches it. */
+@keyframes flare {
+  0%,
+  74% {
+    scale: 1;
+    box-shadow: 0 0 10px color-mix(in srgb, var(--domain) 85%, transparent);
+  }
+  86% {
+    scale: 1.9;
+    box-shadow: 0 0 18px 3px color-mix(in srgb, var(--domain) 95%, transparent);
+  }
+  100% {
+    scale: 1;
+    box-shadow: 0 0 10px color-mix(in srgb, var(--domain) 85%, transparent);
   }
 }
 
