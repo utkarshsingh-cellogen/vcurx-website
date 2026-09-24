@@ -6,7 +6,9 @@
   min-height: 100vh;
   min-height: 100svh;
   padding: clamp(72px, 12vh, 132px) var(--gutter);
-  overflow: hidden;
+  /* `clip`, not `hidden`: a hidden box is a scroll container, and the view timelines
+     below would track it, which never scrolls, instead of the page. */
+  overflow: clip;
   background: var(--bg);
 }
 
@@ -33,16 +35,105 @@
   letter-spacing: -0.015em;
 }
 
+/* ---------- every domain's products, under the deck ---------- */
+.catalog {
+  display: grid;
+  /* Stops a deck wider than the column from stretching it. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(56px, 9vh, 104px);
+  margin-top: clamp(24px, 5vh, 56px);
+}
+
+.domain {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(10px, 2vh, 22px);
+}
+
+.domainHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px 16px;
+  text-align: center;
+}
+
+/* A lit dot in the domain's colour, the same marker the domain page's chips carry. */
+.domainHead::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--domain) 72%, #f4f1ea);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--domain) 85%, transparent);
+}
+
+.domainName {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 3vw, 36px);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+}
+
+.subLayer {
+  padding: 7px 14px;
+  border: 1px solid color-mix(in srgb, var(--domain) 42%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--domain) 14%, rgba(10, 13, 20, 0.5));
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--domain) 38%, #f4f1ea);
+}
+
+.group {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* A rule either side, so the label sits in the middle of the deck it names. */
+.groupTitle {
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 2.5vw, 32px);
+  font-family: var(--font-mono);
+  font-size: clamp(13px, 1.2vw, 16px);
+  /* The tracking adds a trailing gap, so nudge the label back into the middle. */
+  letter-spacing: 0.18em;
+  text-indent: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.groupTitle::before,
+.groupTitle::after {
+  content: "";
+  flex: 1;
+  border-top: 1px solid var(--line);
+}
+
+/* The decks inside step aside here, so their headings go with them and the list takes over. */
+@media (max-width: 1023px), (max-height: 640px) {
+  .catalog {
+    display: none;
+  }
+}
+
 /*
  * As the interlude above scrolls away, this section rises to meet it: the heading and
- * the galaxies each close a different distance over the same stretch of scroll, so they
- * arrive as two layers rather than one sheet. Scroll-driven, so it runs on the
- * compositor with no script; browsers without view timelines simply skip it.
+ * the deck each close a different distance over the same stretch of scroll, so they
+ * arrive as two layers rather than one sheet. Each domain's heading and decks then rise
+ * a little as they come into view. Scroll-driven, so it runs on the compositor with no
+ * script; browsers without view timelines simply skip it.
  */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     .header,
-    .galaxies {
+    .deck {
       animation: rise linear both;
       animation-timeline: view();
       animation-range: entry 0% cover 42%;
@@ -52,8 +143,16 @@
       --rise: 10vh;
     }
 
-    .galaxies {
+    .deck {
       --rise: 24vh;
+    }
+
+    .domainHead,
+    .group {
+      --rise: 6vh;
+      animation: rise linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 30%;
     }
   }
 }
