@@ -103,8 +103,8 @@
 .domain {
   /* The accents are muted mid-tones that sink into the black, so the wire is lifted
      toward paper white first, then only slightly thinned. */
-  --wire: color-mix(in srgb, color-mix(in srgb, var(--domain) 70%, #f4f1ea) 78%, transparent);
-  --wire-lit: color-mix(in srgb, var(--domain) 60%, #fff);
+  --wire: color-mix(in srgb, color-mix(in srgb, var(--domain) 70%, var(--wire-base)) 78%, transparent);
+  --wire-lit: color-mix(in srgb, var(--domain) 60%, var(--wire-base));
   --spark: color-mix(in srgb, var(--domain) 25%, #fff);
   --glow: 0 0 10px color-mix(in srgb, var(--domain) 80%, transparent);
   /* Everything in the scene moves along this, as the scene crosses the screen. */
@@ -153,13 +153,13 @@
   border: 1px solid color-mix(in srgb, var(--domain) 42%, transparent);
   border-radius: 999px;
   /* A solid tint, not a blur: this chip moves with its card, see the note on the cards below. */
-  background: color-mix(in srgb, var(--domain) 16%, rgba(10, 13, 20, 0.86));
+  background: color-mix(in srgb, var(--domain) 16%, var(--chip-bg));
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.14em;
   white-space: nowrap;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--domain) 38%, #f4f1ea);
+  color: color-mix(in srgb, var(--domain) 38%, var(--wire-base));
 }
 
 .branches {
@@ -267,7 +267,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--domain) 72%, #f4f1ea);
+  background: color-mix(in srgb, var(--domain) 72%, var(--wire-base));
   box-shadow: 0 0 10px color-mix(in srgb, var(--domain) 85%, transparent);
 }
 
@@ -275,7 +275,7 @@
   padding: 6px 11px;
   border: 1px solid color-mix(in srgb, var(--domain) 34%, transparent);
   border-radius: 999px;
-  background: rgba(10, 13, 20, 0.62);
+  background: var(--chip-bg);
   font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 0.14em;
@@ -364,7 +364,7 @@
  */
 @media (hover: hover) {
   .tree:has([data-state]:hover) .domain:not(:has([data-state]:hover)) {
-    filter: brightness(0.42) saturate(0.6);
+    filter: var(--dim-filter);
   }
 
   .domain:has([data-state]:hover) {
@@ -373,7 +373,7 @@
 }
 
 .tree:has(:focus-visible) .domain:not(:has(:focus-visible)) {
-  filter: brightness(0.42) saturate(0.6);
+  filter: var(--dim-filter);
 }
 
 .domain:has(:focus-visible) {

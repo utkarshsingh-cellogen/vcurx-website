@@ -29,6 +29,104 @@
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 
   --gutter: clamp(16px, 4vw, 48px);
+
+  /* Theme-dependent surfaces; see the light and sky blocks below. */
+  --chip-bg: rgba(10, 13, 20, 0.72);
+  --cta-bg: #ffffff;
+  --cta-ink: #111111;
+  --cta-glow: rgba(255, 255, 255, 0.45);
+  /* The colour a domain's wires are mixed toward, so they hold against the page. */
+  --wire-base: #f4f1ea;
+  /* How the other domains step back while one is lit. */
+  --dim-filter: brightness(0.42) saturate(0.6);
+  /* The interludes' planet-glow, and a horizon tint over the deep sky. */
+  --glow-a: rgba(60, 110, 200, 0.28);
+  --glow-b: rgba(140, 180, 255, 0.12);
+  --horizon: none;
+  --milkyway: 0.58;
+  /* A wash of sky colour laid under a section's own background; none in space. */
+  --sky-wash: none;
+  /* The dimmed words of a two-tone heading. */
+  --dim-ink: rgba(225, 235, 255, 0.45);
+  /* The wordmark: starlight at the top to the warm light of Mars at the foot. */
+  --wordmark-top: #ffffff;
+  --wordmark-mid: #f7f1e8;
+  --wordmark-bottom: #eec3a1;
+  --wordmark-glow: rgba(255, 200, 160, 0.18);
+  --sparkle: #ffffff;
+}
+
+/*
+ * The sky outside (lib/theme.ts writes data-sky and data-mode onto <html>).
+ * Dawn and dusk keep the dark interface and warm the sky behind it: the interlude
+ * glow, and a band of colour rising from the horizon of the deep sky. Day is the light
+ * theme: paper and ink, no stars, the planet-glow a pale sky blue.
+ */
+:root[data-sky="dawn"] {
+  --glow-a: rgba(225, 120, 150, 0.3);
+  --glow-b: rgba(255, 190, 140, 0.14);
+  --horizon: linear-gradient(to top, rgba(230, 130, 140, 0.22), rgba(120, 90, 190, 0.07) 45%, transparent 72%);
+  --milkyway: 0.4;
+}
+
+:root[data-sky="dusk"] {
+  --glow-a: rgba(235, 125, 60, 0.3);
+  --glow-b: rgba(175, 95, 205, 0.16);
+  --horizon: linear-gradient(to top, rgba(240, 120, 60, 0.24), rgba(150, 70, 170, 0.08) 45%, transparent 72%);
+  --milkyway: 0.45;
+}
+
+/*
+ * Day, drawn as print rather than as sky: ivory paper, near-black ink at full strength,
+ * and one colour, the site's own burnt orange, for what matters. No washes or pastel
+ * glows, which only read as haze on white. Contrast carries it, not tint: in a
+ * two-tone heading the plain words are ink and the lit words are the accent.
+ */
+:root[data-mode="light"] {
+  color-scheme: light;
+
+  --bg: #f7f5f0;
+  --ink: #17150f;
+  --ink-soft: rgba(23, 21, 15, 0.72);
+  --accent: #c8602f;
+  --accent-light: #e0875a;
+  --accent-glow: #fff1e6;
+
+  --line: rgba(23, 21, 15, 0.12);
+  --line-strong: rgba(23, 21, 15, 0.3);
+
+  --chip-bg: #ffffff;
+  --cta-bg: #17150f;
+  --cta-ink: #f7f5f0;
+  --cta-glow: rgba(23, 21, 15, 0.25);
+  --wire-base: #17150f;
+  /* By day, stepping back means washing out, not going dark. */
+  --dim-filter: grayscale(0.4) opacity(0.4);
+  --glow-a: transparent;
+  --glow-b: transparent;
+  --horizon: none;
+  --milkyway: 0;
+  --sky-wash: none;
+  --dim-ink: #17150f;
+  --hl-ink: #c8602f;
+  --wordmark-top: #17150f;
+  --wordmark-mid: #17150f;
+  --wordmark-bottom: #5c3622;
+  --wordmark-glow: transparent;
+  --sparkle: #c8602f;
+  /* The globe's shadow is drawn as line art by day (the shader), so it needs no veil. */
+  --veil-max: 0;
+}
+
+/* Stars do not show by day. Home page only, like the rest of the light theme for now. */
+:root[data-mode="light"] #top [data-starfield] {
+  display: none;
+}
+
+/* Cards on paper: a hairline edge and a short, warm shadow. Home page only for now. */
+:root[data-mode="light"] #top [data-state] {
+  --card-rest: 0 0 0 1px rgba(23, 21, 15, 0.08), 0 14px 30px -20px rgba(60, 40, 20, 0.35);
+  --card-lift: 0 0 0 1px rgba(23, 21, 15, 0.1), 0 30px 54px -26px rgba(60, 40, 20, 0.45);
 }
 
 /*
@@ -49,6 +147,24 @@
   /* Deeper than on the orbit: these cards sit closer to the reader. */
   --card-rest: 0 16px 40px -24px rgba(0, 0, 0, 0.9);
   --card-lift: 0 44px 84px -30px rgba(0, 0, 0, 0.95);
+
+  /*
+   * These pages stay in space whatever the theme, for now: the light theme is drawn for
+   * the home page only. So they take back the dark surfaces a light or dawn root sets.
+   */
+  color-scheme: dark;
+  --accent: #eea77a;
+  --accent-light: #f6c9a4;
+  --accent-glow: #ffffff;
+  --chip-bg: rgba(10, 13, 20, 0.72);
+  --cta-bg: #ffffff;
+  --cta-ink: #111111;
+  --wire-base: #f4f1ea;
+  --horizon: none;
+  --milkyway: 0.58;
+  --sky-wash: none;
+  --dim-ink: rgba(225, 235, 255, 0.45);
+  --hl-ink: var(--ink);
 }
 
 /* ==========================================================

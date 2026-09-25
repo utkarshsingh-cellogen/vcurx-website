@@ -49,13 +49,13 @@
 .stage {
   --arrival: clamp(0, calc((var(--progress) - 0.35) / 0.4), 1);
   --content-arrival: clamp(0, calc((var(--progress) - var(--destination-start)) / (var(--destination-ready) - var(--destination-start))), 1);
-  background: #000;
+  background: var(--bg);
 }
 
 /*
- * A dark veil between the globe and the words. It stops short of opaque, so the globe
- * stays behind the destination as a faint shadow, the way an outline sits behind the
- * copy on the reference site, instead of being put out.
+ * A veil of the page's own colour between the globe and the words: dark by night, paper
+ * by day. It stops short of opaque, so the globe stays behind the destination as a faint
+ * shadow, the way an outline sits behind the copy on the reference site.
  */
 .stage::after {
   content: "";
@@ -63,8 +63,8 @@
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background: #000;
-  opacity: calc(var(--arrival) * 0.8);
+  background: var(--sky-wash), var(--bg);
+  opacity: calc(var(--arrival) * var(--veil-max, 0.8));
 }
 
 .destination {
@@ -131,7 +131,7 @@
   letter-spacing: 0.6em;
   /* balance the trailing letter-spacing so the text stays optically centered */
   padding-left: 0.6em;
-  color: rgba(247, 241, 232, 0.72);
+  color: var(--ink-soft);
   opacity: 0;
   animation: taglineIn 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.65s forwards;
 }
@@ -146,12 +146,12 @@
 }
 
 .rule:first-child {
-  background: linear-gradient(90deg, transparent, rgba(247, 241, 232, 0.5));
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--ink) 50%, transparent));
   transform-origin: right;
 }
 
 .rule:last-child {
-  background: linear-gradient(90deg, rgba(247, 241, 232, 0.5), transparent);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--ink) 50%, transparent), transparent);
   transform-origin: left;
 }
 
@@ -236,7 +236,7 @@
   }
 }
 
-/* Stops at 0.8, so the globe stays behind the words as a shadow. */
+/* Stops short of opaque (`--veil-max`), so the globe stays behind the words as a shadow. */
 @keyframes veil {
   0%,
   35% {
@@ -244,7 +244,7 @@
   }
   75%,
   100% {
-    opacity: 0.8;
+    opacity: var(--veil-max, 0.8);
   }
 }
 
