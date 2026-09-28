@@ -9,9 +9,7 @@
   padding: clamp(96px, 16vh, 180px) var(--gutter) clamp(48px, 8vh, 88px);
   overflow: hidden;
   text-align: center;
-  color: var(--ink);
-  /* The lit words: bright ink in space, the accent on paper (`--hl-ink`). */
-  --text-bright: var(--hl-ink, var(--ink));
+  color: #fff;
 }
 
 .backdrop {
@@ -35,13 +33,10 @@
     radial-gradient(30% 35% at 20% 45%, rgba(255, 170, 120, 0.1), transparent 70%);
 }
 
-/*
- * Earth: deep space with a soft planet-glow drifting in from the right. The glow takes
- * the sky's colour (globals.css): blue by night and day, rose at dawn, ember at dusk.
- */
+/* Earth: deep space with a soft blue planet-glow drifting in from the right */
 .earth {
-  --text-dim: var(--dim-ink);
-  background: var(--sky-wash), var(--bg);
+  --text-dim: rgba(225, 235, 255, 0.45);
+  background: #000;
 }
 
 /* The first interlude appears over the camera's dive, inside the pinned hero. */
@@ -51,8 +46,8 @@
 
 .earth .backdrop {
   background:
-    radial-gradient(55% 60% at 88% 40%, var(--glow-a), transparent 70%),
-    radial-gradient(30% 35% at 80% 45%, var(--glow-b), transparent 70%);
+    radial-gradient(55% 60% at 88% 40%, rgba(60, 110, 200, 0.28), transparent 70%),
+    radial-gradient(30% 35% at 80% 45%, rgba(140, 180, 255, 0.12), transparent 70%);
 }
 
 .center {
@@ -73,8 +68,8 @@
   text-wrap: balance;
   font-size: 14px;
   line-height: 1.6;
-  color: var(--ink-soft);
-  --text-bright: var(--ink-soft);
+  color: rgba(255, 255, 255, 0.75);
+  --text-bright: rgba(255, 255, 255, 0.75);
   letter-spacing: normal;
 }
 
@@ -85,8 +80,8 @@
   margin-top: 22px;
   padding: 12px 22px;
   border-radius: 999px;
-  background: var(--cta-bg);
-  color: var(--cta-ink);
+  background: #fff;
+  color: #111;
   font-size: 14px;
   font-weight: 500;
   visibility: hidden;
@@ -133,7 +128,7 @@
 
 .cta:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 30px -12px var(--cta-glow);
+  box-shadow: 0 14px 30px -12px rgba(255, 255, 255, 0.45);
 }
 
 /*

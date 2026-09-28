@@ -14,12 +14,6 @@ export const fragmentShader = /* glsl */ `
   // 0 to 1 as the globe becomes the destination's shadow: drains it of colour here,
   // where it costs nothing, instead of a CSS filter re-run over the whole canvas each frame.
   uniform float uGhost;
-  // The sky outside (lib/theme.ts): its colour from the horizon up, how much of the
-  // starfield shows through it, and how far it is day, which lifts the opening's shadow.
-  uniform vec3 uSkyLow;
-  uniform vec3 uSkyHigh;
-  uniform float uStars;
-  uniform float uDay;
   const float PI = 3.14159265;
 
   float hash21(vec2 p) {
@@ -111,10 +105,8 @@ export const fragmentShader = /* glsl */ `
     stars += sparkleLayer(p + drift * 0.0035 + mouse * 0.015, 9.0, 0.16, 18.0, 177.0, t);
 
     vec3 light = normalize(vec3(-0.35, 0.55, 0.9));
-    vec3 col = stars * uStars;
+    vec3 col = stars;
     float coverage = 1.0 - smoothstep(1.0 - 1.5 * px / uRadius, 1.0, dist);
-    // How much ink the globe's engraving puts here (by day, as its shadow; see below).
-    float art = 0.0;
     if (dist < 1.0) {
       float z = sqrt(max(1.0 - dist * dist, 0.0));
       vec3 n = vec3(q, z);
@@ -129,20 +121,6 @@ export const fragmentShader = /* glsl */ `
       // Keep India's geography clear as the camera arrives.
       cloud *= mix(0.8, 0.16, uApproach);
       float ocean = smoothstep(0.02, 0.1, day.b - max(day.r, day.g));
-
-      /*
-       * The engraving: a graticule every 15°, lines about a pixel wide measured along
-       * the surface, meridians stopped short of the poles where they would crowd into a
-       * cap, all fading toward the limb; and the land lightly shaded.
-       */
-      float latitude = (0.5 - uv.y) * PI;
-      vec2 cellDist = abs(fract(uv * vec2(24.0, 12.0) + 0.5) - 0.5) / vec2(24.0, 12.0);
-      float lonDist = cellDist.x * 2.0 * PI * cos(latitude) * uRadius;
-      float latDist = cellDist.y * PI * uRadius;
-      float lonLine = (1.0 - smoothstep(0.0, 1.1 * px, lonDist)) * step(0.26, cos(latitude));
-      float latLine = 1.0 - smoothstep(0.0, 1.1 * px, latDist);
-      art = max(max(lonLine, latLine) * 0.55 * z, (1.0 - ocean) * 0.2 * uTexMix);
-
       vec3 surface = day * (0.1 + 1.3 * lit);
       surface = mix(surface, vec3(0.12 + 1.15 * lit), smoothstep(0.1, 0.9, cloud));
 
@@ -189,28 +167,11 @@ export const fragmentShader = /* glsl */ `
     vec3 haloTint = mix(vec3(0.18, 0.46, 1.0), vec3(0.48, 0.8, 1.0), exp(-outside / 0.012));
     col += haloTint * halo * rimLight * (1.0 - coverage);
     // The opening keeps its dramatic shadow; the India view is evenly readable.
-    // By day there is no night to fall across the lower screen.
-    col *= mix(mix(0.2, 1.0, smoothstep(-0.55, 0.02, p.y)), 1.0, max(uApproach, uDay));
+    col *= mix(mix(0.2, 1.0, smoothstep(-0.55, 0.02, p.y)), 1.0, uApproach);
     vec2 uv = gl_FragCoord.xy / uRes;
     col *= 1.0 - 0.18 * pow(length((uv - 0.5) * vec2(1.0, 1.15)), 2.0);
     col = 1.0 - exp(-col * 1.25);
-    // The sky goes in behind the planet after the tone curve, so its colours land as
-    // chosen. Black by night, as before. By day it gives way where the atmosphere glows,
-    // or the blue of the limb would be lost against a pale page.
-    vec3 sky = mix(uSkyLow, uSkyHigh, smoothstep(-0.5, 0.45, p.y));
-    float haloA = clamp(halo * rimLight, 0.0, 1.0);
-    col += (1.0 - coverage) * sky * (1.0 - haloA * uDay * 0.6);
-
-    /*
-     * The globe as a shadow of itself. By day it does not fade to a grey stain on the
-     * page: it becomes an engraving on it, graticule and land and a fine limb in ink,
-     * the way the reference site draws its motorcycle in outline behind the copy.
-     * By night it is drained of colour and the stage's dark veil dims it.
-     */
-    float ring = 1.0 - smoothstep(0.0, 1.5 * px, abs(dist - 1.0) * uRadius);
-    vec3 engraving = mix(sky, vec3(0.09, 0.083, 0.06), clamp((art * coverage + ring) * 0.32, 0.0, 1.0));
-    col = mix(col, engraving, uGhost * uDay);
-    col = mix(col, vec3(dot(col, vec3(0.299, 0.587, 0.114))), 0.65 * uGhost * (1.0 - uDay));
+    col = mix(col, vec3(dot(col, vec3(0.299, 0.587, 0.114))), 0.65 * uGhost);
     gl_FragColor = vec4(col, 1.0);
   }
 `;

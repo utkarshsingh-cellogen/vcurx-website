@@ -11,7 +11,7 @@
    * One shadow, not two: the sheen below repaints the text, and every repaint
    * re-runs this filter over the whole headline.
    */
-  filter: drop-shadow(0 0 24px var(--wordmark-glow, rgba(255, 200, 160, 0.18)));
+  filter: drop-shadow(0 0 24px rgba(255, 200, 160, 0.18));
 }
 
 .line {
@@ -51,12 +51,7 @@
       rgba(255, 255, 255, 0.85) 50%,
       transparent 58%
     ),
-    linear-gradient(
-      180deg,
-      var(--wordmark-top, #ffffff) 0%,
-      var(--wordmark-mid, #f7f1e8) 42%,
-      var(--wordmark-bottom, #eec3a1) 100%
-    );
+    linear-gradient(180deg, #ffffff 0%, #f7f1e8 42%, #eec3a1 100%);
   background-size:
     300% 100%,
     100% 100%;
@@ -94,7 +89,7 @@
   top: 66%;
   margin: -0.5em 0 0 -0.5em; /* centre the 1em sparkle on the point */
   font-size: 0.2em;
-  color: var(--sparkle, #fff);
+  color: #fff;
   --sparkle-delay: 1.2s;
 }
 

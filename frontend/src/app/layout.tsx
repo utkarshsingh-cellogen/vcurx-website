@@ -1,9 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { siteConfig } from "@/config/site";
 import { ScrollHoverPause } from "@/components/effects/ScrollHoverPause";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { displayFont, inter, mono } from "@/lib/fonts";
-import { THEME_BOOT_SCRIPT } from "@/lib/theme";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -48,17 +46,12 @@ const START_AT_TOP = `if(location.pathname==="/"){if("scrollRestoration" in hist
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    // The theme script writes data-pref, data-sky and data-mode onto <html> before React
-    // hydrates, so those attributes are expected to differ from the server's markup.
-    <html lang="en" className={`${displayFont.variable} ${inter.variable} ${mono.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${displayFont.variable} ${inter.variable} ${mono.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: START_AT_TOP }} />
-        {/* Before the first frame, so a light or dawn page never flashes the dark one. */}
-        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
       </head>
       <body>
         {children}
-        <ThemeToggle />
         <ScrollHoverPause />
       </body>
     </html>

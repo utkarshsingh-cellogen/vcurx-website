@@ -15,25 +15,6 @@ type RendererOptions = {
 
 const MAX_PIXEL_RATIO = 1.5;
 const TEXTURE_FADE_MS = 1200;
-/** How quickly the sky turns to a new one, in ms (a time constant, not a duration). */
-const SKY_EASE_MS = 450;
-
-type SkyLook = { low: number[]; high: number[]; stars: number; day: number };
-
-/**
- * The sky behind the planet for each value of `data-sky` on <html> (lib/theme.ts):
- * its colour at the horizon and overhead, how much of the starfield shows, and how far
- * it is day. Night is the black of space, exactly as before.
- */
-const SKIES: Record<string, SkyLook> = {
-  night: { low: [0, 0, 0], high: [0, 0, 0], stars: 1, day: 0 },
-  dawn: { low: [0.36, 0.2, 0.3], high: [0.035, 0.05, 0.13], stars: 0.5, day: 0.15 },
-  // Ivory, the page's own paper (#f7f5f0), a touch warmer toward the horizon.
-  day: { low: [0.975, 0.95, 0.915], high: [0.969, 0.961, 0.941], stars: 0, day: 1 },
-  dusk: { low: [0.42, 0.17, 0.12], high: [0.05, 0.03, 0.1], stars: 0.55, day: 0.1 },
-};
-
-const skyOf = (root: HTMLElement): SkyLook => SKIES[root.getAttribute("data-sky") ?? "night"] ?? SKIES.night;
 
 /**
  * A scroll-driven camera pulls the opening Earth back into a whole globe behind the
@@ -61,10 +42,6 @@ export function createCosmosRenderer(
   const uOrientation = gl.getUniformLocation(program, "uOrientation");
   const uApproach = gl.getUniformLocation(program, "uApproach");
   const uGhost = gl.getUniformLocation(program, "uGhost");
-  const uSkyLow = gl.getUniformLocation(program, "uSkyLow");
-  const uSkyHigh = gl.getUniformLocation(program, "uSkyHigh");
-  const uStars = gl.getUniformLocation(program, "uStars");
-  const uDay = gl.getUniformLocation(program, "uDay");
   gl.uniform1i(gl.getUniformLocation(program, "uColorMap"), 0);
   gl.uniform1i(gl.getUniformLocation(program, "uCloudMap"), 1);
 
@@ -88,10 +65,6 @@ export function createCosmosRenderer(
   let previousTime = performance.now();
   const start = previousTime;
   const mouse = { x: 0.5, y: 0.5, targetX: 0.5, targetY: 0.5 };
-  // The page opens on its sky; a later change of sky eases across.
-  const root = document.documentElement;
-  let skyTarget = skyOf(root);
-  const sky: SkyLook = { low: [...skyTarget.low], high: [...skyTarget.high], stars: skyTarget.stars, day: skyTarget.day };
 
   const draw = (now: number) => {
     if (destroyed) return;
@@ -117,17 +90,6 @@ export function createCosmosRenderer(
     gl.uniform2f(uOrientation, camera.longitude, camera.latitude);
     gl.uniform1f(uApproach, camera.approach);
     gl.uniform1f(uGhost, camera.ghost);
-    const skyEase = still ? 1 : 1 - Math.exp(-delta / SKY_EASE_MS);
-    for (let i = 0; i < 3; i++) {
-      sky.low[i] += (skyTarget.low[i] - sky.low[i]) * skyEase;
-      sky.high[i] += (skyTarget.high[i] - sky.high[i]) * skyEase;
-    }
-    sky.stars += (skyTarget.stars - sky.stars) * skyEase;
-    sky.day += (skyTarget.day - sky.day) * skyEase;
-    gl.uniform3f(uSkyLow, sky.low[0], sky.low[1], sky.low[2]);
-    gl.uniform3f(uSkyHigh, sky.high[0], sky.high[1], sky.high[2]);
-    gl.uniform1f(uStars, sky.stars);
-    gl.uniform1f(uDay, sky.day);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     if (!ready) {
       ready = true;
@@ -175,12 +137,6 @@ export function createCosmosRenderer(
     visible = entry.isIntersecting;
     resume();
   });
-  // The theme toggle, or Auto crossing an hour, changes the sky; the next frames ease to it.
-  const skyObserver = new MutationObserver(() => {
-    skyTarget = skyOf(root);
-    scheduleStill();
-  });
-  skyObserver.observe(root, { attributes: true, attributeFilter: ["data-sky"] });
   const resizeObserver = new ResizeObserver(resize);
   resizeObserver.observe(canvas);
   resize();
@@ -214,7 +170,6 @@ export function createCosmosRenderer(
     window.removeEventListener("pointermove", onPointerMove);
     document.removeEventListener("visibilitychange", onVisibilityChange);
     observer.disconnect();
-    skyObserver.disconnect();
     resizeObserver.disconnect();
     gl.deleteTexture(colorTex);
     gl.deleteTexture(cloudTex);
