@@ -14,6 +14,23 @@ type RendererOptions = {
 };
 
 const MAX_PIXEL_RATIO = 1.5;
+/**
+ * The most pixels the shader draws per frame, whatever the screen: 1.6M is a 1440x900
+ * window at 1.25x. Every pixel runs five star layers and the planet, so a large window
+ * at full density was most of an integrated GPU's frame.
+ */
+const PIXEL_BUDGET = 1_600_000;
+/**
+ * Adaptive quality: every ADAPT_FRAMES frames the average frame time is checked, and
+ * the drawing resolution is lowered by a step when frames run slow, and raised again
+ * when there is room. The globe is soft and the stars are small points, so a lower
+ * resolution barely shows, where a stutter does.
+ */
+const ADAPT_FRAMES = 45;
+const SLOW_MS = 22;
+const FAST_MS = 17.5;
+const QUALITY_STEP = 0.82;
+const MIN_QUALITY = 0.5;
 const TEXTURE_FADE_MS = 1200;
 
 /**
@@ -65,11 +82,42 @@ export function createCosmosRenderer(
   let previousTime = performance.now();
   const start = previousTime;
   const mouse = { x: 0.5, y: 0.5, targetX: 0.5, targetY: 0.5 };
+  // Adaptive quality (see ADAPT_FRAMES): a multiplier on the drawing resolution, and the
+  // frame times gathered since it was last checked.
+  let quality = 1;
+  let adaptFrames = 0;
+  let adaptTotal = 0;
+  let roomChecks = 0;
+
+  const adapt = (delta: number, now: number) => {
+    // Loading stalls the first frames, so only judge once the surface has settled in.
+    if (still || texturesReadyAt === null || now - texturesReadyAt < 1500) return;
+    adaptTotal += delta;
+    if (++adaptFrames < ADAPT_FRAMES) return;
+    const average = adaptTotal / adaptFrames;
+    adaptFrames = 0;
+    adaptTotal = 0;
+    if (average > SLOW_MS && quality > MIN_QUALITY) {
+      quality = Math.max(MIN_QUALITY, quality * QUALITY_STEP);
+      roomChecks = 0;
+      resize();
+    } else if (average < FAST_MS && quality < 1) {
+      // Raise only after two roomy checks running, so it does not see-saw.
+      if (++roomChecks >= 2) {
+        quality = Math.min(1, quality / QUALITY_STEP);
+        roomChecks = 0;
+        resize();
+      }
+    } else {
+      roomChecks = 0;
+    }
+  };
 
   const draw = (now: number) => {
     if (destroyed) return;
     const delta = Math.min(now - previousTime, 100);
     previousTime = now;
+    adapt(delta, now);
     const ease = 1 - Math.exp(-delta / 140);
     mouse.x += (mouse.targetX - mouse.x) * ease;
     mouse.y += (mouse.targetY - mouse.y) * ease;
@@ -121,8 +169,10 @@ export function createCosmosRenderer(
       });
     });
   };
+  // Declared after `adapt`, which calls it: only ever from a frame, once this exists.
   const resize = () => {
-    const scale = Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO);
+    const cssPixels = Math.max(1, canvas.clientWidth * canvas.clientHeight);
+    const scale = Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO, Math.sqrt(PIXEL_BUDGET / cssPixels)) * quality;
     canvas.width = Math.max(1, Math.floor(canvas.clientWidth * scale));
     canvas.height = Math.max(1, Math.floor(canvas.clientHeight * scale));
     gl.viewport(0, 0, canvas.width, canvas.height);
